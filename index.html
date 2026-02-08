@@ -351,6 +351,44 @@ wsl --install -d NOM_DE_LA_DISTRO</code></pre>
         <section id="post-install">
             <h2>3. Outils & Post-Installation</h2>
 
+            <h3>Optimisation (A faire dans un terminal KDE)</h3>
+            <p>Dans un terminal dans KDE, entrez les commandes suivantes pour optimiser les performances :</p>
+            <pre><code>kwriteconfig5 --file kwinrc --group Compositing --key Enabled false && \
+kwriteconfig5 --file kwinrc --group Compositing --key OpenGLIsUnsafe true && \
+kwriteconfig5 --file kwinrc --group Compositing --key MaxFPS 0 && \
+kwriteconfig5 --file kwinrc --group Compositing --key RefreshRate 0 && \
+kwriteconfig5 --file kwinrc --group Compositing --key LatencyPolicy Low && \
+kwriteconfig5 --file kwinrc --group Plugins --key blurEnabled false && \
+kwriteconfig5 --file kwinrc --group Plugins --key kwin4_effect_fadeEnabled false && \
+kwriteconfig5 --file kwinrc --group Plugins --key kwin4_effect_translucencyEnabled false && \
+kwriteconfig5 --file kwinrc --group Plugins --key slideEnabled false && \
+kwriteconfig5 --file kwinrc --group Plugins --key maximizeEnabled false && \
+kwriteconfig5 --file kwinrc --group Plugins --key screenedgeEnabled false && \
+kwriteconfig5 --file kwinrc --group Plugins --key desktopgridEnabled false && \
+kwriteconfig5 --file kwinrc --group Plugins --key presentwindowsEnabled false && \
+kwriteconfig5 --file kglobalrc --group KDE --key AnimationDurationFactor 0 && \
+kwriteconfig5 --file plasmarc --group PlasmaShell --key AnimationDurationFactor 0 && \
+balooctl disable && balooctl purge && \
+kwriteconfig5 --file baloofilerc --group 'Basic Settings' --key Indexing-Enabled false && \
+kwriteconfig5 --file kded5rc --group Module-baloo --key autoload false && \
+kwriteconfig5 --file kded5rc --group Module-device_automounter --key autoload false && \
+kwriteconfig5 --file kded5rc --group Module-networkstatus --key autoload false && \
+kwriteconfig5 --file kded5rc --group Module-printmanager --key autoload false && \
+kwriteconfig5 --file kded5rc --group Module-clipboard --key autoload false && \
+kwriteconfig5 --file kded5rc --group General --key CheckSycoca false && \
+kwriteconfig5 --file kwalletrc --group Wallet --key Enabled false && \
+kwriteconfig5 --file kdeglobals --group Wallet --key Enabled false && \
+kwriteconfig5 --file dolphinrc --group PreviewSettings --key Plugins "" && \
+kwriteconfig5 --file dolphinrc --group General --key BrowseThroughArchives false && \
+kwriteconfig5 --file dolphinrc --group ViewProperties --key ShowPreview false && \
+kwriteconfig5 --file ksplashrc --group KSplash --key Engine none && \
+echo "KWIN_TRIPLE_BUFFER=0" >> ~/.profile && \
+echo "QT_QUICK_CONTROLS_STYLE=Basic" >> ~/.profile && \
+qdbus org.kde.KWin /KWin reconfigure && \
+kquitapp5 plasmashell && kstart5 plasmashell &</code></pre>
+
+            <hr>
+
             <h3>Installer applications sous WSL</h3>
 
             <h4>APT (Standard)</h4>
