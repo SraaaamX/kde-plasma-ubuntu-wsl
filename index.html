@@ -426,13 +426,13 @@ sudo apt install ./google-chrome-stable_current_amd64.deb</code></pre>
             // ==========================================
             const installBat = `@echo off
 REM Script d'installation automatique de KDE pour WSL (Windows Side)
-REM Distro: \${distro}
-REM User: \${username}
-REM IP: \${ip}
+SET WSL_DISTRO=${distro}
+SET WSL_USER=${username}
+SET WSL_IP=${ip}
 
 echo.
 echo =======================================================
-echo  INSTALLATION DE KDE PLASMA SUR WSL (\${distro})
+echo  INSTALLATION DE KDE PLASMA SUR WSL (%WSL_DISTRO%)
 echo =======================================================
 echo.
 echo Ce script va executer les commandes necessaires dans WSL.
@@ -440,12 +440,12 @@ echo.
 
 REM 1. Mise à jour du système
 echo [1/7] Mise a jour des depots et du systeme...
-wsl -d \${distro} -u root -e bash -c "apt update && apt upgrade -y"
+wsl -d %WSL_DISTRO% -u root -e bash -c "apt update && apt upgrade -y"
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 REM 2. Installation des outils requis
 echo [2/7] Installation de Tasksel et utilitaires X11...
-wsl -d \${distro} -u root -e bash -c "apt install -y tasksel dbus-x11 x11-xserver-utils"
+wsl -d %WSL_DISTRO% -u root -e bash -c "apt install -y tasksel dbus-x11 x11-xserver-utils"
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 REM 3. Installation de KDE Plasma via Tasksel
@@ -462,24 +462,24 @@ echo ===========================================================================
 echo.
 echo Appuyez sur une touche pour lancer Tasksel...
 pause >nul
-wsl -d \${distro} -u root tasksel
+wsl -d %WSL_DISTRO% -u root tasksel
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 REM 4. Configuration WSL
 echo [4/7] Configuration de /etc/wsl.conf...
-wsl -d \${distro} -u root -e bash -c "if ! grep -q 'generateResolvConf = false' /etc/wsl.conf; then echo '[network]' >> /etc/wsl.conf && echo 'generateResolvConf = false' >> /etc/wsl.conf; fi"
+wsl -d %WSL_DISTRO% -u root -e bash -c "if ! grep -q 'generateResolvConf = false' /etc/wsl.conf; then echo '[network]' >> /etc/wsl.conf && echo 'generateResolvConf = false' >> /etc/wsl.conf; fi"
 
 REM 5. Configuration DNS
-echo [5/7] Configuration de /etc/resolv.conf (IP: \${ip})...
-wsl -d \${distro} -u root -e bash -c "rm -f /etc/resolv.conf && echo 'nameserver \${ip}' > /etc/resolv.conf && echo 'nameserver 8.8.8.8' >> /etc/resolv.conf"
+echo [5/7] Configuration de /etc/resolv.conf (IP: %WSL_IP%)...
+wsl -d %WSL_DISTRO% -u root -e bash -c "rm -f /etc/resolv.conf && echo 'nameserver %WSL_IP%' > /etc/resolv.conf && echo 'nameserver 8.8.8.8' >> /etc/resolv.conf"
 
 REM 6. Configuration Environnement (.bashrc)
-echo [6/7] Configuration de .bashrc pour \${username}...
-wsl -d \${distro} -u \${username} -e bash -c "sed -i '/# ===== WSL + VcXsrv KDE =====/,/export QT_AUTO_SCREEN_SCALE_FACTOR=0/d' ~/.bashrc && echo '' >> ~/.bashrc && echo '# ===== WSL + VcXsrv KDE =====' >> ~/.bashrc && echo 'export DISPLAY=\${ip}:0' >> ~/.bashrc && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/.bashrc && echo 'export QT_QPA_PLATFORM=xcb' >> ~/.bashrc && echo 'export XDG_SESSION_TYPE=x11' >> ~/.bashrc && echo 'export KDE_FULL_SESSION=true' >> ~/.bashrc && echo 'export KWIN_COMPOSE=N' >> ~/.bashrc && echo 'export GDK_DPI_SCALE=1' >> ~/.bashrc && echo 'export QT_SCALE_FACTOR=1' >> ~/.bashrc && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/.bashrc"
+echo [6/7] Configuration de .bashrc pour %WSL_USER%...
+wsl -d %WSL_DISTRO% -u %WSL_USER% -e bash -c "sed -i '/# ===== WSL + VcXsrv KDE =====/,/export QT_AUTO_SCREEN_SCALE_FACTOR=0/d' ~/.bashrc && echo '' >> ~/.bashrc && echo '# ===== WSL + VcXsrv KDE =====' >> ~/.bashrc && echo 'export DISPLAY=%WSL_IP%:0' >> ~/.bashrc && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/.bashrc && echo 'export QT_QPA_PLATFORM=xcb' >> ~/.bashrc && echo 'export XDG_SESSION_TYPE=x11' >> ~/.bashrc && echo 'export KDE_FULL_SESSION=true' >> ~/.bashrc && echo 'export KWIN_COMPOSE=N' >> ~/.bashrc && echo 'export GDK_DPI_SCALE=1' >> ~/.bashrc && echo 'export QT_SCALE_FACTOR=1' >> ~/.bashrc && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/.bashrc"
 
 REM 7. Script de lancement interne
 echo [7/7] Creation du script de lancement interne (~/bin/start-kde.sh)...
-wsl -d \${distro} -u \${username} -e bash -c "mkdir -p ~/bin && echo '#!/bin/bash' > ~/bin/start-kde.sh && echo 'export DISPLAY=\${ip}:0' >> ~/bin/start-kde.sh && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/bin/start-kde.sh && echo 'export QT_QPA_PLATFORM=xcb' >> ~/bin/start-kde.sh && echo 'export XDG_SESSION_TYPE=x11' >> ~/bin/start-kde.sh && echo 'export KDE_FULL_SESSION=true' >> ~/bin/start-kde.sh && echo 'export KWIN_COMPOSE=N' >> ~/bin/start-kde.sh && echo 'export GDK_DPI_SCALE=1' >> ~/bin/start-kde.sh && echo 'export QT_SCALE_FACTOR=1' >> ~/bin/start-kde.sh && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/bin/start-kde.sh && echo 'dbus-launch --exit-with-session startplasma-x11' >> ~/bin/start-kde.sh && chmod +x ~/bin/start-kde.sh"
+wsl -d %WSL_DISTRO% -u %WSL_USER% -e bash -c "mkdir -p ~/bin && echo '#!/bin/bash' > ~/bin/start-kde.sh && echo 'export DISPLAY=%WSL_IP%:0' >> ~/bin/start-kde.sh && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/bin/start-kde.sh && echo 'export QT_QPA_PLATFORM=xcb' >> ~/bin/start-kde.sh && echo 'export XDG_SESSION_TYPE=x11' >> ~/bin/start-kde.sh && echo 'export KDE_FULL_SESSION=true' >> ~/bin/start-kde.sh && echo 'export KWIN_COMPOSE=N' >> ~/bin/start-kde.sh && echo 'export GDK_DPI_SCALE=1' >> ~/bin/start-kde.sh && echo 'export QT_SCALE_FACTOR=1' >> ~/bin/start-kde.sh && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/bin/start-kde.sh && echo 'dbus-launch --exit-with-session startplasma-x11' >> ~/bin/start-kde.sh && chmod +x ~/bin/start-kde.sh"
 
 REM 8. Redémarrage
 echo.
@@ -497,7 +497,7 @@ exit
 
 :ERROR
 echo.
-echo [ERREUR] Une etape a echoue. Verifiez le nom de la distro (\${distro})
+echo [ERREUR] Une etape a echoue. Verifiez le nom de la distro (%WSL_DISTRO%)
 echo et votre connexion internet.
 pause
 exit /b %ERRORLEVEL%
@@ -507,8 +507,11 @@ exit /b %ERRORLEVEL%
             // 2. SCRIPT DE LANCEMENT
             // ==========================================
             const startBat = `@echo off
+SET WSL_DISTRO=${distro}
+SET WSL_USER=${username}
+SET WSL_IP=${ip}
 REM ========================================
-REM Script de lancement KDE WSL (\${distro})
+REM Script de lancement KDE WSL (%WSL_DISTRO%)
 REM ========================================
 
 echo.
@@ -540,7 +543,7 @@ echo [3/5] Attente (5s)...
 timeout /t 5 /nobreak > nul
 
 REM 4. Lancer KDE
-echo [4/5] Lancement de KDE dans \${distro}...
+echo [4/5] Lancement de KDE dans %WSL_DISTRO%...
 echo.
 echo ===================================================
 echo  KDE va demarrer. Laissez cette fenetre ouverte.
@@ -548,19 +551,21 @@ echo  Appuyez sur CTRL+C pour fermer.
 echo ===================================================
 
 REM Commande d'optimisation
-set CMD_KDE="cd ~ && ~/bin/start-kde.sh && sleep 5 && kwriteconfig5 --file kwinrc --group Compositing --key Enabled false && kwriteconfig5 --file kwinrc --group Compositing --key OpenGLIsUnsafe true && kwriteconfig5 --file kwinrc --group Compositing --key MaxFPS 0 && kwriteconfig5 --file kwinrc --group Compositing --key RefreshRate 0 && kwriteconfig5 --file kwinrc --group Compositing --key LatencyPolicy Low && kwriteconfig5 --file kwinrc --group Plugins --key blurEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key kwin4_effect_fadeEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key kwin4_effect_translucencyEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key slideEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key maximizeEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key screenedgeEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key desktopgridEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key presentwindowsEnabled false && kwriteconfig5 --file kglobalrc --group KDE --key AnimationDurationFactor 0 && kwriteconfig5 --file plasmarc --group PlasmaShell --key AnimationDurationFactor 0 && balooctl disable 2>/dev/null && balooctl purge 2>/dev/null && kwriteconfig5 --file baloofilerc --group 'Basic Settings' --key Indexing-Enabled false && kwriteconfig5 --file kded5rc --group Module-baloo --key autoload false && kwriteconfig5 --file kded5rc --group Module-device_automounter --key autoload false && kwriteconfig5 --file kded5rc --group Module-networkstatus --key autoload false && kwriteconfig5 --file kded5rc --group Module-printmanager --key autoload false && kwriteconfig5 --file kded5rc --group Module-clipboard --key autoload false && kwriteconfig5 --file kded5rc --group General --key CheckSycoca false && kwriteconfig5 --file ksplashrc --group KSplash --key Engine none && kwriteconfig5 --file dolphinrc --group PreviewSettings --key Plugins '' && qdbus org.kde.KWin /KWin reconfigure && kquitapp5 plasmashell && kstart5 plasmashell"
+set CMD_KDE="cd ~ && ~/bin/start-kde.sh && sleep 5 && kwriteconfig5 --file kwinrc --group Compositing --key Enabled false && kwriteconfig5 --file kwinrc --group Compositing --key OpenGLIsUnsafe true && kwriteconfig5 --file kwinrc --group Compositing --key MaxFPS 0 && kwriteconfig5 --file kwinrc --group Compositing --key RefreshRate 0 && kwriteconfig5 --file kwinrc --group Compositing --key LatencyPolicy Low && kwriteconfig5 --file kwinrc --group Plugins --key blurEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key kwin4_effect_fadeEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key kwin4_effect_translucencyEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key slideEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key maximizeEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key screenedgeEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key desktopgridEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key presentwindowsEnabled false && kwriteconfig5 --file kglobalrc --group KDE --key AnimationDurationFactor 0 && kwriteconfig5 --file plasmarc --group PlasmaShell --key AnimationDurationFactor 0 && balooctl disable 2>/dev/null && balooctl purge 2>/dev/null && kwriteconfig5 --file baloofilerc --group 'Basic Settings' --key Indexing-Enabled false && kwriteconfig5 --file kded5rc --group Module-baloo --key autoload false && kwriteconfig5 --file kded5rc --group Module-device_automounter --key autoload false && kwriteconfig5 --file kded5rc --group Module-networkstatus --key autoload false && kwriteconfig5 --file kded5rc --group Module-printmanager --key autoload false && kwriteconfig5 --file kded5rc --group Module-clipboard --key autoload false && kwriteconfig5 --file kded5rc --group General --key CheckSycoca false && kwriteconfig5 --file ksplashrc --group KSplash --key Engine none && kwriteconfig5 --file dolphinrc --group PreviewSettings --key Plugins '' && qdbus org.kde.KWin /KWin reconfigure"
 
-wsl -d \${distro} -u \${username} bash -l -c %CMD_KDE%
+wsl -d %WSL_DISTRO% -u %WSL_USER% bash -l -c %CMD_KDE%
 
 REM 5. Nettoyage
 echo.
 echo Fermeture...
-wsl --terminate \${distro} 2>NUL
+wsl --terminate %WSL_DISTRO% 2>NUL
 taskkill /F /IM vcxsrv.exe >NUL 2>&1
 del "%TEMP%\\vcxsrv_kde.xlaunch" >NUL 2>&1
 timeout /t 2 /nobreak > nul
 exit
 `;
+
+
 
             // Injection
             document.getElementById('installArea').value = installBat;

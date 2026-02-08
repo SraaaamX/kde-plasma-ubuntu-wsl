@@ -11,5 +11,3 @@ Tout le projet (guide complet + générateur de scripts) est maintenant regroup�
    - Guide post-installation (Docker, VS Code, etc.)
 
 C'est tout ! L'interface web contient toute la documentation nécessaire.
-# kde-plasma-ubuntu-wsl
-# kde-plasma-ubuntu-wsl
