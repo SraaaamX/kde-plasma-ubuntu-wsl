@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide & Installation KDE sur WSL2</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --border: #334155;
+            --code-bg: #0f172a;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+
+        /* Section Styles */
+        section {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: var(--text);
+            margin-top: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+
+        h2 {
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.75rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            color: #93c5fd;
+            margin-top: 1.5rem;
+        }
+
+        p,
+        ul,
+        ol {
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+
+        /* Code Styles */
+        code {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            color: #e2e8f0;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            margin: 1rem 0;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: #d1d5db;
+        }
+
+        /* Generator Styles */
+        .generator-card {
+            background-color: rgba(59, 130, 246, 0.05);
+            border: 1px solid var(--primary);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            margin: 2rem 0;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .form-full {
+                grid-column: span 2;
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #94a3b8;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            background-color: #0f172a;
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            ring: 2px solid var(--primary);
+        }
+
+        .btn-generate {
+            background-color: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            font-size: 1.1rem;
+        }
+
+        .btn-generate:hover {
+            opacity: 0.9;
+        }
+
+        /* Result Styles */
+        .result-section {
+            margin-top: 2rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .code-block-container {
+            margin-bottom: 2rem;
+            background-color: var(--code-bg);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .file-name {
+            font-family: monospace;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .copy-btn {
+            background-color: #334155;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: background-color 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: #475569;
+        }
+
+        textarea {
+            width: 100%;
+            height: 250px;
+            background-color: var(--code-bg);
+            color: #d1d5db;
+            padding: 1rem;
+            border: none;
+            font-family: monospace;
+            font-size: 0.85rem;
+            resize: vertical;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <h1>Guide Complet : KDE Plasma sur WSL2</h1>
+
+        <section id="prerequisites">
+            <h2>1. Prérequis Indispensables</h2>
+            <p>Avant de générer les scripts, assurez-vous d'avoir suivi ces étapes :</p>
+
+            <h3>A. Installer WSL2</h3>
+            <p>Ouvrez <strong>PowerShell en tant qu'administrateur</strong>.</p>
+
+            <p><strong>Par défaut (installe "Ubuntu") :</strong></p>
+            <pre><code>wsl --install</code></pre>
+
+            <p><strong>Pour installer une autre distribution (ex: Ubuntu-24.04) :</strong></p>
+            <pre><code>wsl --list --online
+wsl --install -d NOM_DE_LA_DISTRO</code></pre>
+
+            <p>Redémarrez votre PC si demandé.</p>
+
+            <h3>B. Installer VcXsrv (Serveur X)</h3>
+            <p>Pour afficher l'interface graphique de Linux sur Windows, installez <strong>VcXsrv</strong> :</p>
+            <ol>
+                <li>Téléchargez <a href="https://sourceforge.net/projects/vcxsrv/" target="_blank"
+                        style="color: var(--primary);">VcXsrv sur SourceForge</a>.</li>
+                <li>Installez-le avec les options par défaut.</li>
+            </ol>
+
+            <div
+                style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem;">
+                <h4 style="color: #f87171; margin-top: 0;">⚠️ IMPORTANT : Correction du Flou (DPI)</h4>
+                <p style="margin-bottom: 0;">Si vous ne faites pas ça, KDE sera flou et inutilisable.</p>
+                <ol style="margin-bottom: 0;">
+                    <li>Allez dans le dossier <code>C:\Program Files\VcXsrv</code></li>
+                    <li>Faites un <strong>clic droit</strong> sur <code>vcxsrv.exe</code> → <strong>Propriétés</strong>
+                    </li>
+                    <li>Allez dans l'onglet <strong>Compatibilité</strong> → <strong>Modifier les paramètres PPP
+                            élevés</strong></li>
+                    <li>Cochez : ☑ <strong>Remplacer le comportement de mise à l’échelle...</strong></li>
+                    <li>Sélectionnez : <strong>Application</strong> dans la liste déroulante</li>
+                    <li>Validez tout (OK → Appliquer → OK)</li>
+                </ol>
+            </div>
+        </section>
+
+        <section id="generator-section">
+            <h2>2. Générateur de Scripts Automatisé</h2>
+            <p>Une fois les prérequis installés, utilisez ce formulaire pour créer vos scripts d'installation et de
+                lancement personnalisés.</p>
+
+            <div class="generator-card">
+                <div class="form-grid">
+                    <div>
+                        <label for="distro">Distribution WSL <span style="color:red">*</span></label>
+                        <input type="text" id="distro" placeholder="ex: Ubuntu-22.04" required>
+                        <div style="color: #64748b; font-size: 0.8rem; margin-top: 0.25rem;">
+                            Trouver le nom : <code>wsl -l -v</code>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="username">Utilisateur Linux <span style="color:red">*</span></label>
+                        <input type="text" id="username" placeholder="ex: jules" required>
+                        <div style="color: #64748b; font-size: 0.8rem; margin-top: 0.25rem;">
+                            Votre nom d'utilisateur Ubuntu
+                        </div>
+                    </div>
+
+                    <div class="form-full">
+                        <label for="ip">Adresse IP Windows (WSL) <span style="color:red">*</span></label>
+                        <input type="text" id="ip" placeholder="ex: 172.20.16.1" required>
+                        <div style="color: #64748b; font-size: 0.8rem; margin-top: 0.25rem;">
+                            Trouver l'IP : PowerShell <code>ipconfig</code> (Chercher "vEthernet (WSL)")
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-generate" onclick="generateScripts()">✨ Générer les Scripts</button>
+
+                <div id="results" class="result-section hidden">
+                    <h3 style="text-align: center;">Vos Scripts Prêts à l'Emploi</h3>
+
+                    <div class="code-block-container">
+                        <div class="code-header">
+                            <span class="file-name">1. install_kde.bat (Installation)</span>
+                            <button class="copy-btn" onclick="copyToClipboard('installArea', this)">Copier</button>
+                        </div>
+                        <textarea id="installArea" readonly></textarea>
+                    </div>
+                    <p style="font-size: 0.9rem; text-align: center;">👆 Copiez ce code dans un fichier sur votre bureau
+                        et lancez-le pour installer KDE.</p>
+
+                    <div class="code-block-container" style="margin-top: 2rem;">
+                        <div class="code-header">
+                            <span class="file-name">2. start_kde.bat (Lancement)</span>
+                            <button class="copy-btn" onclick="copyToClipboard('startArea', this)">Copier</button>
+                        </div>
+                        <textarea id="startArea" readonly></textarea>
+                    </div>
+                    <p style="font-size: 0.9rem; text-align: center;">👆 Utilisez ce fichier pour démarrer KDE à chaque
+                        fois.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="post-install">
+            <h2>3. Outils & Post-Installation</h2>
+
+            <h3>Installer applications sous WSL</h3>
+
+            <h4>APT (Standard)</h4>
+            <pre><code>sudo apt install &lt;package&gt;</code></pre>
+
+            <h4>Snap (Paquets universels)</h4>
+            <pre><code>sudo snap install &lt;package&gt;</code></pre>
+
+            <h4>Fichiers .deb</h4>
+            <pre><code>sudo apt install ./chemin/vers/package.deb</code></pre>
+
+            <h4>Fichiers .rpm (via alien)</h4>
+            <pre><code>sudo apt install alien
+sudo alien -i ./chemin/vers/package.rpm</code></pre>
+
+            <hr>
+
+            <h3>Google Chrome</h3>
+            <p>Téléchargement et installation :</p>
+            <pre><code>wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo apt install ./google-chrome-stable_current_amd64.deb</code></pre>
+            <p>Lancer :</p>
+            <pre><code>google-chrome &</code></pre>
+
+            <hr>
+
+            <h3>🐳 Docker Desktop (WSL Side)</h3>
+            <p>Lancer le service automatiquement :</p>
+            <pre><code>systemctl --user start docker-desktop</code></pre>
+
+            <p>Lancer l’UI Docker Desktop (optionnel) :</p>
+            <pre><code>/opt/docker-desktop/Docker\ Desktop &</code></pre>
+
+            <hr>
+
+            <h3>💻 VS Code + KWallet</h3>
+            <ol>
+                <li>Créer un wallet dans <strong>KWalletManager</strong> (déjà installé).</li>
+                <li>Lancer VS Code avec :</li>
+            </ol>
+            <pre><code>code --password-store=kwallet5</code></pre>
+
+            <p><strong>Permanent</strong> (ajouter dans <code>argv.json</code>) :</p>
+            <pre><code>"password-store": "kwallet5"</code></pre>
+        </section>
+
+        <section id="troubleshooting">
+            <h2>4. Dépannage</h2>
+            <ul>
+                <li><strong>Écran noir ?</strong> Vérifiez que l'IP dans <code>/etc/resolv.conf</code> est bien celle de
+                    votre vEthernet (WSL). Si elle a changé, mettez à jour le fichier.</li>
+                <li><strong>Erreur "Distro not found" ?</strong> Vérifiez le nom exact avec <code>wsl -l -v</code>.
+                    "Ubuntu" est différent de "Ubuntu-22.04".</li>
+                <li><strong>Flou ?</strong> Vous avez oublié le "Fix DPI" dans les propriétés de <code>vcxsrv.exe</code>
+                    (voir section 1).</li>
+            </ul>
+        </section>
+    </div>
+
+    <script>
+        function generateScripts() {
+            const distro = document.getElementById('distro').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const ip = document.getElementById('ip').value.trim();
+
+            if (!distro || !username || !ip) {
+                alert('Veuillez remplir tous les champs obligatoires.');
+                return;
+            }
+
+            // ==========================================
+            // 1. SCRIPT D'INSTALLATION
+            // ==========================================
+            const installBat = `@echo off
+REM Script d'installation automatique de KDE pour WSL (Windows Side)
+REM Distro: \${distro}
+REM User: \${username}
+REM IP: \${ip}
+
+echo.
+echo =======================================================
+echo  INSTALLATION DE KDE PLASMA SUR WSL (\${distro})
+echo =======================================================
+echo.
+echo Ce script va executer les commandes necessaires dans WSL.
+echo.
+
+REM 1. Mise à jour du système
+echo [1/7] Mise a jour des depots et du systeme...
+wsl -d \${distro} -u root -e bash -c "apt update && apt upgrade -y"
+IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+
+REM 2. Installation des outils requis
+echo [2/7] Installation de Tasksel et utilitaires X11...
+wsl -d \${distro} -u root -e bash -c "apt install -y tasksel dbus-x11 x11-xserver-utils"
+IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+
+REM 3. Installation de KDE Plasma via Tasksel
+echo [3/7] Lancement de Tasksel pour l'installation manuelle...
+echo.
+echo ===============================================================================
+echo  INSTRUCTIONS IMPORTANTES POUR TASKSEL :
+echo ===============================================================================
+echo  1. Une interface bleue va s'ouvrir.
+echo  2. Descendez jusqu'a "Kubuntu Desktop" ou "KDE Plasma" avec les FLECHES.
+echo  3. Cochez la case avec la BARRE ESPACE [*].
+echo  4. Validez avec TAB puis ENTREE.
+echo ===============================================================================
+echo.
+echo Appuyez sur une touche pour lancer Tasksel...
+pause >nul
+wsl -d \${distro} -u root tasksel
+IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+
+REM 4. Configuration WSL
+echo [4/7] Configuration de /etc/wsl.conf...
+wsl -d \${distro} -u root -e bash -c "if ! grep -q 'generateResolvConf = false' /etc/wsl.conf; then echo '[network]' >> /etc/wsl.conf && echo 'generateResolvConf = false' >> /etc/wsl.conf; fi"
+
+REM 5. Configuration DNS
+echo [5/7] Configuration de /etc/resolv.conf (IP: \${ip})...
+wsl -d \${distro} -u root -e bash -c "rm -f /etc/resolv.conf && echo 'nameserver \${ip}' > /etc/resolv.conf && echo 'nameserver 8.8.8.8' >> /etc/resolv.conf"
+
+REM 6. Configuration Environnement (.bashrc)
+echo [6/7] Configuration de .bashrc pour \${username}...
+wsl -d \${distro} -u \${username} -e bash -c "sed -i '/# ===== WSL + VcXsrv KDE =====/,/export QT_AUTO_SCREEN_SCALE_FACTOR=0/d' ~/.bashrc && echo '' >> ~/.bashrc && echo '# ===== WSL + VcXsrv KDE =====' >> ~/.bashrc && echo 'export DISPLAY=\${ip}:0' >> ~/.bashrc && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/.bashrc && echo 'export QT_QPA_PLATFORM=xcb' >> ~/.bashrc && echo 'export XDG_SESSION_TYPE=x11' >> ~/.bashrc && echo 'export KDE_FULL_SESSION=true' >> ~/.bashrc && echo 'export KWIN_COMPOSE=N' >> ~/.bashrc && echo 'export GDK_DPI_SCALE=1' >> ~/.bashrc && echo 'export QT_SCALE_FACTOR=1' >> ~/.bashrc && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/.bashrc"
+
+REM 7. Script de lancement interne
+echo [7/7] Creation du script de lancement interne (~/bin/start-kde.sh)...
+wsl -d \${distro} -u \${username} -e bash -c "mkdir -p ~/bin && echo '#!/bin/bash' > ~/bin/start-kde.sh && echo 'export DISPLAY=\${ip}:0' >> ~/bin/start-kde.sh && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/bin/start-kde.sh && echo 'export QT_QPA_PLATFORM=xcb' >> ~/bin/start-kde.sh && echo 'export XDG_SESSION_TYPE=x11' >> ~/bin/start-kde.sh && echo 'export KDE_FULL_SESSION=true' >> ~/bin/start-kde.sh && echo 'export KWIN_COMPOSE=N' >> ~/bin/start-kde.sh && echo 'export GDK_DPI_SCALE=1' >> ~/bin/start-kde.sh && echo 'export QT_SCALE_FACTOR=1' >> ~/bin/start-kde.sh && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/bin/start-kde.sh && echo 'dbus-launch --exit-with-session startplasma-x11' >> ~/bin/start-kde.sh && chmod +x ~/bin/start-kde.sh"
+
+REM 8. Redémarrage
+echo.
+echo [INFO] Redemarrage de WSL...
+wsl --shutdown
+
+echo.
+echo =======================================================
+echo  INSTALLATION TERMINEE !
+echo =======================================================
+echo Vous pouvez maintenant utiliser start_kde.bat.
+echo.
+pause
+exit
+
+:ERROR
+echo.
+echo [ERREUR] Une etape a echoue. Verifiez le nom de la distro (\${distro})
+echo et votre connexion internet.
+pause
+exit /b %ERRORLEVEL%
+`;
+
+            // ==========================================
+            // 2. SCRIPT DE LANCEMENT
+            // ==========================================
+            const startBat = `@echo off
+REM ========================================
+REM Script de lancement KDE WSL (\${distro})
+REM ========================================
+
+echo.
+echo ========================================
+echo  Demarrage de KDE Plasma sous WSL
+echo ========================================
+echo.
+
+REM 1. Gestion VcXsrv
+tasklist /FI "IMAGENAME eq vcxsrv.exe" 2>NUL | find /I /N "vcxsrv.exe">NUL
+IF "%ERRORLEVEL%"=="0" (
+    echo [1/5] Relance de VcXsrv...
+    taskkill /F /IM vcxsrv.exe >NUL 2>&1
+    timeout /t 1 /nobreak > nul
+) ELSE (
+    echo [1/5] Démarrage de VcXsrv...
+)
+
+REM 2. Config VcXsrv
+echo [2/5] Creation de la config...
+(
+echo ^<?xml version="1.0" encoding="UTF-8"?^>
+echo ^<XLaunch WindowMode="Fullscreen" ClientMode="NoClient" LocalClient="False" Display="0" LocalProgram="xcalc" RemoteProgram="xterm" RemotePassword="" PrivateKey="" RemoteHost="" RemoteUser="" XDMCPHost="" XDMCPBroadcast="False" XDMCPIndirect="False" Clipboard="True" ClipboardPrimary="True" ExtraParams="" Wgl="True" DisableAC="True" XDMCPTerminate="False"/^>
+) > "%TEMP%\\vcxsrv_kde.xlaunch"
+
+REM 3. Lancer VcXsrv
+start "" "C:\\Program Files\\VcXsrv\\xlaunch.exe" -run "%TEMP%\\vcxsrv_kde.xlaunch"
+echo [3/5] Attente (5s)...
+timeout /t 5 /nobreak > nul
+
+REM 4. Lancer KDE
+echo [4/5] Lancement de KDE dans \${distro}...
+echo.
+echo ===================================================
+echo  KDE va demarrer. Laissez cette fenetre ouverte.
+echo  Appuyez sur CTRL+C pour fermer.
+echo ===================================================
+
+REM Commande d'optimisation
+set CMD_KDE="cd ~ && ~/bin/start-kde.sh && sleep 5 && kwriteconfig5 --file kwinrc --group Compositing --key Enabled false && kwriteconfig5 --file kwinrc --group Compositing --key OpenGLIsUnsafe true && kwriteconfig5 --file kwinrc --group Compositing --key MaxFPS 0 && kwriteconfig5 --file kwinrc --group Compositing --key RefreshRate 0 && kwriteconfig5 --file kwinrc --group Compositing --key LatencyPolicy Low && kwriteconfig5 --file kwinrc --group Plugins --key blurEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key kwin4_effect_fadeEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key kwin4_effect_translucencyEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key slideEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key maximizeEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key screenedgeEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key desktopgridEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key presentwindowsEnabled false && kwriteconfig5 --file kglobalrc --group KDE --key AnimationDurationFactor 0 && kwriteconfig5 --file plasmarc --group PlasmaShell --key AnimationDurationFactor 0 && balooctl disable 2>/dev/null && balooctl purge 2>/dev/null && kwriteconfig5 --file baloofilerc --group 'Basic Settings' --key Indexing-Enabled false && kwriteconfig5 --file kded5rc --group Module-baloo --key autoload false && kwriteconfig5 --file kded5rc --group Module-device_automounter --key autoload false && kwriteconfig5 --file kded5rc --group Module-networkstatus --key autoload false && kwriteconfig5 --file kded5rc --group Module-printmanager --key autoload false && kwriteconfig5 --file kded5rc --group Module-clipboard --key autoload false && kwriteconfig5 --file kded5rc --group General --key CheckSycoca false && kwriteconfig5 --file ksplashrc --group KSplash --key Engine none && kwriteconfig5 --file dolphinrc --group PreviewSettings --key Plugins '' && qdbus org.kde.KWin /KWin reconfigure && kquitapp5 plasmashell && kstart5 plasmashell"
+
+wsl -d \${distro} -u \${username} bash -l -c %CMD_KDE%
+
+REM 5. Nettoyage
+echo.
+echo Fermeture...
+wsl --terminate \${distro} 2>NUL
+taskkill /F /IM vcxsrv.exe >NUL 2>&1
+del "%TEMP%\\vcxsrv_kde.xlaunch" >NUL 2>&1
+timeout /t 2 /nobreak > nul
+exit
+`;
+
+            // Injection
+            document.getElementById('installArea').value = installBat;
+            document.getElementById('startArea').value = startBat;
+
+            // Affichage
+            document.getElementById('results').classList.remove('hidden');
+
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: "smooth" });
+        }
+
+        function copyToClipboard(elementId, btn) {
+            const textarea = document.getElementById(elementId);
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = "Copié !";
+                btn.style.backgroundColor = "#10b981";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = "#334155";
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+
+</html>
