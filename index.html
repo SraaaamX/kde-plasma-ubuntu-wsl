@@ -1,481 +1,583 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guide & Installation KDE sur WSL2</title>
+
+    <!-- TAILWIND CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- TAILWIND CONFIG -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        black: '#000000',
+                        surface: '#080808',
+                        surface2: '#111111',
+                        border: '#1a1a1a',
+                        borderHighlight: '#333333',
+                        text: '#eeeeee',
+                        muted: '#888888',
+
+                        primary: '#ffffff',
+                        accent: '#333333',
+                    },
+                    boxShadow: {
+                        'plate': '0 4px 6px -1px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)',
+                        'plate-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
+                        'well': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.6)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        :root {
-            --primary: #3b82f6;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #f8fafc;
-            --border: #334155;
-            --code-bg: #0f172a;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
 
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            line-height: 1.6;
+        ::-webkit-scrollbar-track {
+            background: #000;
         }
 
-        .main-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 3rem 1.5rem;
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
         }
 
-        /* Section Styles */
-        section {
-            background-color: var(--card-bg);
-            padding: 2rem;
-            border-radius: 1rem;
-            border: 1px solid var(--border);
-            margin-bottom: 2rem;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
 
-        h1,
-        h2,
-        h3 {
-            color: var(--text);
-            margin-top: 0;
+        /* Selection */
+        ::selection {
+            background: #fff;
+            color: #000;
         }
 
-        h1 {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
-            color: var(--primary);
-        }
-
-        h2 {
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 0.75rem;
-            margin-top: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        h3 {
-            color: #93c5fd;
-            margin-top: 1.5rem;
-        }
-
-        p,
-        ul,
-        ol {
-            margin-bottom: 1rem;
-            color: #cbd5e1;
-        }
-
-        /* Code Styles */
-        code {
-            background-color: rgba(0, 0, 0, 0.3);
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.25rem;
-            font-family: monospace;
-            color: #e2e8f0;
-        }
-
+        /* Code Block */
         pre {
-            background-color: var(--code-bg);
-            padding: 1rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            border: 1px solid var(--border);
-            margin: 1rem 0;
+            background: #050505 !important;
+            border: 1px solid #1a1a1a;
         }
 
-        pre code {
-            background-color: transparent;
-            padding: 0;
-            color: #d1d5db;
+        /* Card / Plate Style */
+        .plate {
+            background: #080808;
+            border: 1px solid #1a1a1a;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        /* Generator Styles */
-        .generator-card {
-            background-color: rgba(59, 130, 246, 0.05);
-            border: 1px solid var(--primary);
-            padding: 2rem;
-            border-radius: 0.75rem;
-            margin: 2rem 0;
+        .plate:hover {
+            border-color: #333;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
         }
 
-        .form-grid {
-            display: grid;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
+        /* Input Well Style */
+        .well {
+            background: #000;
+            border: 1px solid #1a1a1a;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.6);
+            transition: border-color 0.2s;
         }
 
-        @media (min-width: 640px) {
-            .form-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .form-full {
-                grid-column: span 2;
-            }
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #94a3b8;
-        }
-
-        input {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid var(--border);
-            background-color: #0f172a;
-            color: white;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-            ring: 2px solid var(--primary);
-        }
-
-        .btn-generate {
-            background-color: var(--primary);
-            color: white;
-            width: 100%;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            border: none;
-            font-weight: 700;
-            cursor: pointer;
-            transition: opacity 0.2s;
-            font-size: 1.1rem;
-        }
-
-        .btn-generate:hover {
-            opacity: 0.9;
-        }
-
-        /* Result Styles */
-        .result-section {
-            margin-top: 2rem;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        .code-block-container {
-            margin-bottom: 2rem;
-            background-color: var(--code-bg);
-            border-radius: 0.5rem;
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
-
-        .code-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .file-name {
-            font-family: monospace;
-            font-weight: 600;
-            color: #e2e8f0;
-        }
-
-        .copy-btn {
-            background-color: #334155;
-            color: white;
-            border: none;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.25rem;
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: background-color 0.2s;
-        }
-
-        .copy-btn:hover {
-            background-color: #475569;
-        }
-
-        textarea {
-            width: 100%;
-            height: 250px;
-            background-color: var(--code-bg);
-            color: #d1d5db;
-            padding: 1rem;
-            border: none;
-            font-family: monospace;
-            font-size: 0.85rem;
-            resize: vertical;
-            box-sizing: border-box;
+        .well:focus {
+            border-color: #fff;
             outline: none;
         }
 
-        .hidden {
-            display: none;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Sidebar Link Active State */
+        .sidebar-link.active {
+            color: #fff;
+            border-left-color: #fff;
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 0%, transparent 100%);
         }
     </style>
 </head>
 
-<body>
-    <div class="main-container">
-        <h1>Guide Complet : KDE Plasma sur WSL2</h1>
+<body class="bg-black text-text font-sans antialiased min-h-screen selection:bg-white selection:text-black">
 
-        <section id="prerequisites">
-            <h2>1. Prérequis Indispensables</h2>
-            <p>Avant de générer les scripts, assurez-vous de respecter ces conditions :</p>
-            <ul>
-                <li>Être <strong>administrateur</strong> de votre PC.</li>
-                <li>Avoir activé la virtualisation dans le BIOS (cela peut potentiellement ne pas marcher si désactivé).</li>
-            </ul>
-
-            <h3>A. Installer WSL2</h3>
-            <p>Ouvrez <strong>PowerShell en tant qu'administrateur</strong>.</p>
-
-            <p><strong>Par défaut (installe "Ubuntu") :</strong></p>
-            <pre><code>wsl --install</code></pre>
-
-            <p><strong>Pour installer une autre distribution (ex: Ubuntu-24.04) :</strong></p>
-            <pre><code>wsl --list --online
-wsl --install -d NOM_DE_LA_DISTRO</code></pre>
-
-            <p>Redémarrez votre PC si demandé.</p>
-
-            <p>Une fois redémarré, ouvrez un terminal et lancez la commande suivante :</p>
-            <pre><code>wsl -d NOM_DE_LA_DISTRO</code></pre>
-            <p>Suivez les instructions pour créer votre <strong>nom d'utilisateur</strong> (username) et votre <strong>mot de passe</strong> (password).</p>
-
-            <h3>B. Installer VcXsrv (Serveur X)</h3>
-            <p>Pour afficher l'interface graphique de Linux sur Windows, installez <strong>VcXsrv</strong> :</p>
-            <ol>
-                <li>Téléchargez <a href="https://github.com/marchaesen/vcxsrv/releases" target="_blank"
-                        style="color: var(--primary);">VcXsrv sur GitHub</a> (Recommandé) ou SourceForge.</li>
-                <li>Installez-le avec les options par défaut.</li>
-            </ol>
-
-            <div
-                style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem;">
-                <h4 style="color: #f87171; margin-top: 0;">⚠️ IMPORTANT : Correction du Flou (DPI)</h4>
-                <p style="margin-bottom: 0;">Si vous ne faites pas ça, KDE sera flou et inutilisable.</p>
-                <ol style="margin-bottom: 0;">
-                    <li>Allez dans le dossier <code>C:\Program Files\VcXsrv</code></li>
-                    <li>Faites un <strong>clic droit</strong> sur <code>vcxsrv.exe</code> → <strong>Propriétés</strong>
-                    </li>
-                    <li>Allez dans l'onglet <strong>Compatibilité</strong> → <strong>Modifier les paramètres PPP
-                            élevés</strong></li>
-                    <li>Cochez : ☑ <strong>Remplacer le comportement de mise à l’échelle...</strong></li>
-                    <li>Sélectionnez : <strong>Application</strong> dans la liste déroulante</li>
-                    <li>Validez tout (OK → Appliquer → OK)</li>
-                </ol>
-            </div>
-        </section>
-
-        <section id="generator-section">
-            <h2>2. Générateur de Scripts Automatisé</h2>
-            <p>Une fois les prérequis installés, utilisez ce formulaire pour créer vos scripts d'installation et de
-                lancement personnalisés.</p>
-
-            <div class="generator-card">
-                <div class="form-grid">
-                    <div>
-                        <label for="distro">Distribution WSL <span style="color:red">*</span></label>
-                        <input type="text" id="distro" placeholder="ex: Ubuntu-22.04" required>
-                        <div style="color: #64748b; font-size: 0.8rem; margin-top: 0.25rem;">
-                            Trouver le nom : <code>wsl -l -v</code>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="username">Utilisateur Linux <span style="color:red">*</span></label>
-                        <input type="text" id="username" placeholder="ex: jules" required>
-                        <div style="color: #64748b; font-size: 0.8rem; margin-top: 0.25rem;">
-                            Votre nom d'utilisateur Ubuntu
-                        </div>
-                    </div>
-
-                    <div class="form-full">
-                        <label for="ip">Adresse IP Windows (WSL) <span style="color:red">*</span></label>
-                        <input type="text" id="ip" placeholder="ex: 172.20.16.1" required>
-                        <div style="color: #64748b; font-size: 0.8rem; margin-top: 0.25rem;">
-                            Trouver l'IP : PowerShell <code>ipconfig</code> (Chercher "vEthernet (WSL)")
-                        </div>
-                    </div>
-                </div>
-
-                <button class="btn-generate" onclick="generateScripts()">✨ Générer les Scripts</button>
-
-                <div id="results" class="result-section hidden">
-                    <h3 style="text-align: center;">Vos Scripts Prêts à l'Emploi</h3>
-
-                    <div class="code-block-container">
-                        <div class="code-header">
-                            <span class="file-name">1. install_kde.bat (Installation)</span>
-                            <button class="copy-btn" onclick="copyToClipboard('installArea', this)">Copier</button>
-                        </div>
-                        <textarea id="installArea" readonly></textarea>
-                    </div>
-                    <p style="font-size: 0.9rem; text-align: center;">👆 Copiez ce code dans un fichier (ex: <code>install.bat</code>) sur votre bureau et lancez-le avec l'<strong>Invite de commandes (CMD)</strong> (pas PowerShell).</p>
-
-                    <div class="code-block-container" style="margin-top: 2rem;">
-                        <div class="code-header">
-                            <span class="file-name">2. start_kde.bat (Lancement)</span>
-                            <button class="copy-btn" onclick="copyToClipboard('startArea', this)">Copier</button>
-                        </div>
-                        <textarea id="startArea" readonly></textarea>
-                    </div>
-                    <p style="font-size: 0.9rem; text-align: center;">👆 Utilisez ce fichier pour démarrer KDE à chaque fois. (Lancer avec <strong>CMD</strong> également).</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="post-install">
-            <h2>3. Outils & Post-Installation</h2>
-
-            <h3>Optimisation (A faire dans un terminal KDE)</h3>
-            <p>Dans un terminal dans KDE, entrez les commandes suivantes pour optimiser les performances :</p>
-            <pre><code>kwriteconfig5 --file kwinrc --group Compositing --key Enabled false && \
-kwriteconfig5 --file kwinrc --group Compositing --key OpenGLIsUnsafe true && \
-kwriteconfig5 --file kwinrc --group Compositing --key MaxFPS 0 && \
-kwriteconfig5 --file kwinrc --group Compositing --key RefreshRate 0 && \
-kwriteconfig5 --file kwinrc --group Compositing --key LatencyPolicy Low && \
-kwriteconfig5 --file kwinrc --group Plugins --key blurEnabled false && \
-kwriteconfig5 --file kwinrc --group Plugins --key kwin4_effect_fadeEnabled false && \
-kwriteconfig5 --file kwinrc --group Plugins --key kwin4_effect_translucencyEnabled false && \
-kwriteconfig5 --file kwinrc --group Plugins --key slideEnabled false && \
-kwriteconfig5 --file kwinrc --group Plugins --key maximizeEnabled false && \
-kwriteconfig5 --file kwinrc --group Plugins --key screenedgeEnabled false && \
-kwriteconfig5 --file kwinrc --group Plugins --key desktopgridEnabled false && \
-kwriteconfig5 --file kwinrc --group Plugins --key presentwindowsEnabled false && \
-kwriteconfig5 --file kglobalrc --group KDE --key AnimationDurationFactor 0 && \
-kwriteconfig5 --file plasmarc --group PlasmaShell --key AnimationDurationFactor 0 && \
-balooctl disable && balooctl purge && \
-kwriteconfig5 --file baloofilerc --group 'Basic Settings' --key Indexing-Enabled false && \
-kwriteconfig5 --file kded5rc --group Module-baloo --key autoload false && \
-kwriteconfig5 --file kded5rc --group Module-device_automounter --key autoload false && \
-kwriteconfig5 --file kded5rc --group Module-networkstatus --key autoload false && \
-kwriteconfig5 --file kded5rc --group Module-printmanager --key autoload false && \
-kwriteconfig5 --file kded5rc --group Module-clipboard --key autoload false && \
-kwriteconfig5 --file kded5rc --group General --key CheckSycoca false && \
-kwriteconfig5 --file kwalletrc --group Wallet --key Enabled false && \
-kwriteconfig5 --file kdeglobals --group Wallet --key Enabled false && \
-kwriteconfig5 --file dolphinrc --group PreviewSettings --key Plugins "" && \
-kwriteconfig5 --file dolphinrc --group General --key BrowseThroughArchives false && \
-kwriteconfig5 --file dolphinrc --group ViewProperties --key ShowPreview false && \
-kwriteconfig5 --file ksplashrc --group KSplash --key Engine none && \
-echo "KWIN_TRIPLE_BUFFER=0" >> ~/.profile && \
-echo "QT_QUICK_CONTROLS_STYLE=Basic" >> ~/.profile && \
-qdbus org.kde.KWin /KWin reconfigure && \
-kquitapp5 plasmashell && kstart5 plasmashell &</code></pre>
-
-            <hr>
-
-            <h3>Initiation à Linux (Pour les débutants)</h3>
-            <p>Si vous débutez sur Linux, voici quelques ressources utiles pour commencer :</p>
-            <ul>
-                <li><a href="https://doc.ubuntu-fr.org/debutant" target="_blank" style="color: var(--primary);">Guide du débutant Ubuntu</a> : Commandes de base, structure des fichiers...</li>
-                <li><a href="https://github.com/phyver/GameShell" target="_blank" style="color: var(--primary);">GameShell</a> : Un jeu pour apprendre le shell Linux en s'amusant.</li>
-            </ul>
-
-            <hr>
-
-            <h3>Gestion des paquets et installations</h3>
-            <p>Sous Linux, on n'installe pas des .exe mais des paquets. Voici comment faire :</p>
-
-            <h4>1. Via les dépôts officiels (APT) - Recommandé</h4>
-            <p>La méthode standard pour 99% des logiciels (Firefox, VLC, GIMP...).</p>
-            <pre><code>sudo apt update
-sudo apt install nom_du_paquet</code></pre>
-
-            <h4>2. Via Snap (Universel)</h4>
-            <p>Pour les applications packagées avec toutes leurs dépendances.</p>
-            <pre><code>sudo snap install nom_du_paquet</code></pre>
-
-            <h4>3. Fichiers .deb (Debian/Ubuntu)</h4>
-            <p>Équivalent du .exe pour Debian/Ubuntu. Si vous téléchargez un fichier .deb (ex: Chrome, Discord) :</p>
-            <pre><code>sudo apt install ./chemin/vers/fichier.deb</code></pre>
-
-            <h4>4. Fichiers .rpm (RedHat/Fedora)</h4>
-            <p>Les fichiers .rpm ne sont pas natifs pour Ubuntu. Il faut utiliser <code>alien</code> pour les convertir (à éviter si possible).</p>
-            <pre><code>sudo apt install alien
-sudo alien -i paquet.rpm</code></pre>
-
-            <hr>
-
-            <h3>Google Chrome & Navigateurs</h3>
-            <div style="background-color: rgba(234, 179, 8, 0.1); border: 1px solid #eab308; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
-                <h4 style="color: #facc15; margin-top: 0;">⚠️ Note importante sur les navigateurs</h4>
-                <p style="margin-bottom: 0;">
-                    Pour le <strong>rendu visuel</strong> (vidéo, fluidité), il est souvent préférable d'utiliser votre navigateur Windows.
-                    Cependant, pour le <strong>développement web</strong> (technique), utilisez le navigateur dans WSL pour éviter les problèmes de réseaux ou de fichiers (ex: CSRF, permissions).
-                </p>
-            </div>
-            <p>Installation de Chrome dans WSL :</p>
-            <pre><code>wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo apt install ./google-chrome-stable_current_amd64.deb</code></pre>
-            <p>Lancer :</p>
-            <pre><code>google-chrome &</code></pre>
-
-            <hr>
-
-            <h3>🐳 Docker Desktop (WSL Side)</h3>
-            <p>Si vous utilisez Docker Desktop sur Windows avec l'intégration WSL2 activée :</p>
-            <p>1. Vérifier les contextes disponibles :</p>
-            <pre><code>docker context ls</code></pre>
-            <p>2. Utiliser le contexte par défaut (celui de Desktop) :</p>
-            <pre><code>docker context use default</code></pre>
-            <p>3. Lancer le service (si nécessaire) :</p>
-            <pre><code>systemctl --user start docker-desktop</code></pre>
-            <p><em>(Optionnel : Ajoutez cette commande à la fin de votre fichier <code>~/.bashrc</code> pour qu'il se lance automatiquement).</em></p>
-
-            <hr>
-
-            <h3>💻 VS Code + KWallet</h3>
-            <ol>
-                <li>Créer un wallet dans <strong>KWalletManager</strong> (déjà installé).</li>
-                <li>Lancer VS Code avec :</li>
-            </ol>
-            <pre><code>code --password-store=kwallet5</code></pre>
-
-            <p><strong>Permanent</strong> (ajouter dans <code>argv.json</code>) :</p>
-            <pre><code>"password-store": "kwallet5"</code></pre>
-        </section>
-
-        <section id="troubleshooting">
-            <h2>4. Dépannage</h2>
-            <ul>
-                <li><strong>Écran noir ?</strong> Vérifiez que l'IP dans <code>/etc/resolv.conf</code> est bien celle de
-                    votre vEthernet (WSL). Si elle a changé, mettez à jour le fichier.</li>
-                <li><strong>Erreur "Distro not found" ?</strong> Vérifiez le nom exact avec <code>wsl -l -v</code>.
-                    "Ubuntu" est différent de "Ubuntu-22.04".</li>
-                <li><strong>Flou ?</strong> Vous avez oublié le "Fix DPI" dans les propriétés de <code>vcxsrv.exe</code>
-                    (voir section 1).</li>
-            </ul>
-        </section>
+    <!-- MOBILE NAV TOGGLE (Visible on small screens) -->
+    <div class="lg:hidden fixed top-0 left-0 w-full bg-black/90 backdrop-blur z-50 border-b border-border px-6 py-4 flex justify-between items-center">
+        <span class="font-bold text-white">KDE on WSL2</span>
+        <button id="mobile-menu-btn" class="text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
     </div>
 
+    <!-- SIDEBAR NAVIGATION (Fixed on Desktop, Hidden/Modal on Mobile) -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-surface border-r border-border z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-y-auto pt-20 lg:pt-12 pb-12">
+        <div class="px-6 space-y-8">
+            <div class="hidden lg:block">
+                <h1 class="font-bold text-white text-xl tracking-tight">KDE on WSL2</h1>
+                <div class="text-xs text-muted font-mono mt-1">GUIDE <span class="current-year"></span></div>
+            </div>
+
+            <nav class="space-y-1">
+                <a href="#header" class="sidebar-link block px-4 py-2 text-sm text-muted hover:text-white border-l-2 border-transparent transition-all">Introduction</a>
+                
+                <div class="pt-4 pb-2 text-xs font-bold text-muted/50 uppercase tracking-wider px-4">Installation</div>
+                <a href="#prerequisites" class="sidebar-link block px-4 py-2 text-sm text-muted hover:text-white border-l-2 border-transparent transition-all">01. Prérequis</a>
+                <a href="#generator-section" class="sidebar-link block px-4 py-2 text-sm text-muted hover:text-white border-l-2 border-transparent transition-all">02. Générateur</a>
+                
+                <div class="pt-4 pb-2 text-xs font-bold text-muted/50 uppercase tracking-wider px-4">Post-Install</div>
+                <a href="#optimization" class="sidebar-link block px-4 py-2 text-sm text-muted hover:text-white border-l-2 border-transparent transition-all">Optimisation</a>
+                <a href="#linux-basics" class="sidebar-link block px-4 py-2 text-sm text-muted hover:text-white border-l-2 border-transparent transition-all">Linux Basics</a>
+                <a href="#packages" class="sidebar-link block px-4 py-2 text-sm text-muted hover:text-white border-l-2 border-transparent transition-all">Paquets</a>
+                <a href="#chrome" class="sidebar-link block px-4 py-2 text-sm text-muted hover:text-white border-l-2 border-transparent transition-all">Chrome & Web</a>
+                <a href="#docker" class="sidebar-link block px-4 py-2 text-sm text-muted hover:text-white border-l-2 border-transparent transition-all">Docker</a>
+                <a href="#vscode" class="sidebar-link block px-4 py-2 text-sm text-muted hover:text-white border-l-2 border-transparent transition-all">VS Code</a>
+                
+                <div class="pt-4 pb-2 text-xs font-bold text-muted/50 uppercase tracking-wider px-4">Support</div>
+                <a href="#troubleshooting" class="sidebar-link block px-4 py-2 text-sm text-muted hover:text-white border-l-2 border-transparent transition-all">04. Dépannage</a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- OVERLAY for Mobile Menu -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/80 z-30 hidden lg:hidden backdrop-blur-sm"></div>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <div class="lg:pl-64 min-h-screen transition-all duration-300">
+        <div class="max-w-4xl mx-auto px-6 py-24 lg:py-20 space-y-20">
+
+            <!-- HEADER -->
+            <header id="header" class="text-center space-y-6 pt-10 scroll-mt-32">
+                <h1 class="text-4xl lg:text-5xl font-bold tracking-tight text-white">Guide Complet : KDE Plasma sur WSL2
+                </h1>
+                <div class="w-24 h-1 bg-white mx-auto rounded-full opacity-20"></div>
+            </header>
+
+            <!-- SECTION 1: PREREQUISITES -->
+            <section id="prerequisites" class="space-y-8 scroll-mt-24">
+                <div class="flex items-center gap-4 pb-4 border-b border-border">
+                    <span class="font-mono font-bold text-2xl text-muted">01</span>
+                    <h2 class="text-2xl font-bold text-white">Prérequis Indispensables</h2>
+                </div>
+
+                <div class="plate p-8 rounded-xl space-y-4">
+                    <p class="text-muted">Avant de générer les scripts, assurez-vous de respecter ces conditions :</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                            <span>Être <strong>administrateur</strong> de votre PC.</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+                            <span class="leading-relaxed">Avoir activé la <strong>virtualisation</strong> dans le BIOS. <br><span class="text-red-400/80 text-xs font-mono bg-red-900/10 px-2 py-0.5 rounded border border-red-900/20">⚠️ Obligatoire : risque d'erreurs critiques si désactivé</span></span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- A. WSL2 -->
+                <div class="space-y-4">
+                    <h3 class="text-xl font-bold text-white">A. Installer WSL2</h3>
+                    <p class="text-muted">Ouvrez <strong>PowerShell en tant qu'administrateur</strong>.</p>
+
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div class="plate p-6 rounded-xl flex flex-col justify-between">
+                            <span class="text-xs font-mono text-muted uppercase mb-3">Par défaut (Ubuntu)</span>
+                            <code
+                                class="font-mono text-white text-sm bg-black px-3 py-2 rounded border border-border">wsl --install</code>
+                        </div>
+                        <div class="plate p-6 rounded-xl flex flex-col justify-between">
+                            <span class="text-xs font-mono text-muted uppercase mb-3">Version spécifique</span>
+                            <div class="space-y-2">
+                                <code class="block font-mono text-muted text-xs">wsl --list --online</code>
+                                <code
+                                    class="block font-mono text-white text-sm bg-black px-3 py-2 rounded border border-border">wsl --install -d NOM_DISTRO</code>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-muted">Une fois l'installation terminée, ouvrez un terminal et lancez la commande suivante :
+                        <code class="bg-surface2 px-1 rounded text-white">wsl -d NOM_DE_LA_DISTRO</code>. Suivez les
+                        instructions pour créer votre username et password.</p>
+
+                    <!-- TUTORIAL VIDEOS -->
+                    <div class="grid md:grid-cols-2 gap-6 pt-4">
+                        <div class="plate p-4 rounded-xl space-y-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xs font-bold text-white bg-red-600 px-2 py-0.5 rounded">FR</span>
+                                <span class="text-sm font-bold text-white">Tutoriel Vidéo (Tech2Tech)</span>
+                            </div>
+                            <div class="relative w-full pt-[56.25%] rounded-lg overflow-hidden bg-black border border-border">
+                                <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/ilPj5kHk_wE" title="Tutoriel WSL2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        </div>
+                        <div class="plate p-4 rounded-xl space-y-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xs font-bold text-black bg-white px-2 py-0.5 rounded">EN</span>
+                                <span class="text-sm font-bold text-white">Video Tutorial (NetworkChuck)</span>
+                            </div>
+                            <div class="relative w-full pt-[56.25%] rounded-lg overflow-hidden bg-black border border-border">
+                                <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/_fntjriRe48" title="WSL2 Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- B. VcXsrv -->
+                <div class="space-y-4">
+                    <h3 class="text-xl font-bold text-white">B. Installer VcXsrv (Serveur X)</h3>
+
+                    <div class="plate p-8 rounded-xl space-y-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <p class="text-muted">Pour afficher l'interface graphique de Linux sur Windows.</p>
+                            <a href="https://github.com/marchaesen/vcxsrv/releases" target="_blank"
+                                class="inline-flex items-center justify-center px-6 py-2.5 bg-white text-black font-bold text-sm rounded-lg hover:bg-gray-200 transition-colors">
+                                Télécharger VcXsrv
+                            </a>
+                        </div>
+
+                        <div class="bg-surface2 border-l-2 border-white p-6 rounded-r-lg space-y-4">
+                            <h4 class="font-bold text-white">⚠️ IMPORTANT : Correction du Flou (DPI)</h4>
+                            <p class="text-sm text-muted">Si vous ne faites pas ça, KDE sera flou et inutilisable.</p>
+                            <ol class="list-decimal list-inside text-sm text-muted space-y-1 marker:text-white">
+                                <li>Allez dans le dossier <code>C:\Program Files\VcXsrv</code></li>
+                                <li>Faites un <strong>clic droit</strong> sur <code>vcxsrv.exe</code> →
+                                    <strong>Propriétés</strong></li>
+                                <li>Allez dans l'onglet <strong>Compatibilité</strong> → <strong>Modifier les paramètres PPP
+                                        élevés</strong></li>
+                                <li>Cochez : ☑ <strong>Remplacer le comportement...</strong></li>
+                                <li>Sélectionnez : <strong>Application</strong></li>
+                                <li>Validez tout (OK)</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: GENERATOR -->
+            <section id="generator-section" class="space-y-8 scroll-mt-24">
+                <div class="flex items-center gap-4 pb-4 border-b border-border">
+                    <span class="font-mono font-bold text-2xl text-muted">02</span>
+                    <h2 class="text-2xl font-bold text-white">Générateur de Scripts Automatisé</h2>
+                </div>
+
+                <div class="plate p-8 lg:p-10 rounded-xl space-y-8">
+                    <p class="text-muted">Une fois les prérequis installés, utilisez ce formulaire pour créer vos scripts
+                        d'installation et de lancement personnalisés.</p>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted uppercase tracking-wider">Distribution WSL <span
+                                    class="text-white">*</span></label>
+                            <input type="text" id="distro" placeholder="ex: Ubuntu-22.04"
+                                class="well w-full p-4 rounded-lg text-white font-mono text-sm placeholder-muted/50">
+                            <div class="text-[10px] text-muted text-right">cmd: wsl -l -v</div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-muted uppercase tracking-wider">Utilisateur Linux <span
+                                    class="text-white">*</span></label>
+                            <input type="text" id="username" placeholder="ex: jules"
+                                class="well w-full p-4 rounded-lg text-white font-mono text-sm placeholder-muted/50">
+                            <div class="text-[10px] text-muted text-right">Votre nom d'utilisateur Ubuntu</div>
+                        </div>
+
+                        <div class="md:col-span-2 space-y-2">
+                            <label class="text-xs font-bold text-muted uppercase tracking-wider">Adresse IP Windows (WSL)
+                                <span class="text-white">*</span></label>
+                            <input type="text" id="ip" placeholder="ex: 172.20.16.1"
+                                class="well w-full p-4 rounded-lg text-white font-mono text-sm placeholder-muted/50">
+                            <div class="text-[10px] text-muted text-right">PowerShell: <code>ipconfig</code> (Chercher "vEthernet (WSL)", ex: 172.22.176.1)</div>
+                        </div>
+                    </div>
+
+                    <button onclick="generateScripts()"
+                        class="w-full py-4 bg-white text-black font-bold text-lg rounded-lg hover:bg-gray-200 transition-colors shadow-lg active:translate-y-0.5">
+                        ✨ Générer les Scripts
+                    </button>
+
+                    <!-- RESULTS -->
+                    <div id="results" class="hidden space-y-8 pt-8 border-t border-border animate-fade-in">
+                        <h3 class="text-center font-bold text-white text-lg">Vos Scripts Prêts à l'Emploi</h3>
+
+                        <!-- Install -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-end px-2">
+                                <span class="font-mono text-sm font-bold text-white">1. install_kde.bat</span>
+                                <button onclick="copyToClipboard('installArea', this)"
+                                    class="text-xs text-muted hover:text-white underline decoration-dashed transition-colors">Copier
+                                    le contenu</button>
+                            </div>
+                            <textarea id="installArea" readonly
+                                class="well w-full h-64 p-4 rounded-lg font-mono text-xs text-muted resize-none"></textarea>
+                            <p class="text-center text-xs text-muted">👆 Copiez dans <code>install.bat</code> et lancez avec
+                                <strong>CMD (Admin)</strong>.</p>
+                        </div>
+
+                        <!-- Start -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-end px-2">
+                                <span class="font-mono text-sm font-bold text-white">2. start_kde.bat</span>
+                                <button onclick="copyToClipboard('startArea', this)"
+                                    class="text-xs text-muted hover:text-white underline decoration-dashed transition-colors">Copier
+                                    le contenu</button>
+                            </div>
+                            <textarea id="startArea" readonly
+                                class="well w-full h-64 p-4 rounded-lg font-mono text-xs text-muted resize-none"></textarea>
+                            <p class="text-center text-xs text-muted">👆 Utilisez ce fichier pour démarrer KDE à chaque
+                                fois.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: POST-INSTALL -->
+            <section id="post-install" class="space-y-12 scroll-mt-24">
+                <div class="flex items-center gap-4 pb-4 border-b border-border">
+                    <span class="font-mono font-bold text-2xl text-muted">03</span>
+                    <h2 class="text-2xl font-bold text-white">Outils & Post-Installation</h2>
+                </div>
+
+                <!-- OPTIMIZATION -->
+                <div id="optimization" class="plate p-8 rounded-xl border-l-4 border-white scroll-mt-28">
+                    <h3 class="font-bold text-white text-lg mb-4">Optimisation (A faire dans un terminal KDE)</h3>
+                    <p class="text-muted text-sm mb-4">Dans un terminal dans KDE, entrez les commandes suivantes pour
+                        optimiser les performances :</p>
+                    <div class="relative group">
+                        <pre
+                            class="well p-4 rounded-lg overflow-x-auto text-xs text-muted font-mono leading-relaxed whitespace-pre-wrap break-all">kwriteconfig5 --file kwinrc --group Compositing --key Enabled false && kwriteconfig5 --file kwinrc --group Compositing --key OpenGLIsUnsafe true && kwriteconfig5 --file kwinrc --group Compositing --key MaxFPS 0 && kwriteconfig5 --file kwinrc --group Compositing --key RefreshRate 0 && kwriteconfig5 --file kwinrc --group Compositing --key LatencyPolicy Low && kwriteconfig5 --file kwinrc --group Plugins --key blurEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key kwin4_effect_fadeEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key kwin4_effect_translucencyEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key slideEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key maximizeEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key screenedgeEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key desktopgridEnabled false && kwriteconfig5 --file kwinrc --group Plugins --key presentwindowsEnabled false && kwriteconfig5 --file kglobalrc --group KDE --key AnimationDurationFactor 0 && kwriteconfig5 --file plasmarc --group PlasmaShell --key AnimationDurationFactor 0 && balooctl disable && balooctl purge && kwriteconfig5 --file baloofilerc --group 'Basic Settings' --key Indexing-Enabled false && kwriteconfig5 --file kded5rc --group Module-baloo --key autoload false && kwriteconfig5 --file kded5rc --group Module-device_automounter --key autoload false && kwriteconfig5 --file kded5rc --group Module-networkstatus --key autoload false && kwriteconfig5 --file kded5rc --group Module-printmanager --key autoload false && kwriteconfig5 --file kded5rc --group Module-clipboard --key autoload false && kwriteconfig5 --file kded5rc --group General --key CheckSycoca false && kwriteconfig5 --file kwalletrc --group Wallet --key Enabled false && kwriteconfig5 --file kdeglobals --group Wallet --key Enabled false && kwriteconfig5 --file dolphinrc --group PreviewSettings --key Plugins "" && kwriteconfig5 --file dolphinrc --group General --key BrowseThroughArchives false && kwriteconfig5 --file dolphinrc --group ViewProperties --key ShowPreview false && kwriteconfig5 --file ksplashrc --group KSplash --key Engine none && echo "KWIN_TRIPLE_BUFFER=0" >> ~/.profile && echo "QT_QUICK_CONTROLS_STYLE=Basic" >> ~/.profile && qdbus org.kde.KWin /KWin reconfigure && kquitapp5 plasmashell && kstart5 plasmashell &</pre>
+                        <button
+                            onclick="navigator.clipboard.writeText(this.previousElementSibling.innerText); this.innerText='Copié!'"
+                            class="absolute top-2 right-2 bg-white text-black text-xs font-bold px-3 py-1 rounded shadow hover:bg-gray-200 transition-colors">Copier</button>
+                    </div>
+                </div>
+
+                <!-- LINUX BASICS -->
+                <div id="linux-basics" class="plate p-6 rounded-xl scroll-mt-28">
+                    <h4 class="font-bold text-white mb-2">Initiation à Linux (Pour les débutants)</h4>
+                    <p class="text-sm text-muted mb-4">Si vous débutez sur Linux, voici quelques ressources utiles pour commencer :</p>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="https://doc.ubuntu-fr.org/debutant" target="_blank"
+                                class="text-white hover:underline decoration-dashed">Guide du débutant
+                                Ubuntu</a> : Commandes de base, structure des fichiers...</li>
+                        <li><a href="https://github.com/phyver/GameShell" target="_blank"
+                                class="text-white hover:underline decoration-dashed">GameShell (Jeu
+                                Terminal)</a> : Un jeu pour apprendre le shell Linux en s'amusant.</li>
+                    </ul>
+                </div>
+
+                <!-- PACKAGES -->
+                <div id="packages" class="space-y-4 scroll-mt-28">
+                    <h3 class="text-xl font-bold text-white">Gestion des paquets</h3>
+                    <p class="text-sm text-muted">Sous Linux, on n'installe pas des .exe mais des paquets. Voici comment faire :</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="plate p-6 rounded-xl">
+                            <h4 class="font-bold text-white mb-2">1. APT (Standard)</h4>
+                            <p class="text-xs text-muted mb-2">Méthode standard (Firefox, VLC...).</p>
+                            <code class="block bg-black p-2 rounded text-xs font-mono text-muted border border-border">sudo apt update && sudo apt install paquet</code>
+                        </div>
+                        <div class="plate p-6 rounded-xl">
+                            <h4 class="font-bold text-white mb-2">2. Snap (Universel)</h4>
+                            <p class="text-xs text-muted mb-2">Apps packagées avec dépendances.</p>
+                            <code class="block bg-black p-2 rounded text-xs font-mono text-muted border border-border">sudo snap install paquet</code>
+                        </div>
+                        <div class="plate p-6 rounded-xl">
+                            <h4 class="font-bold text-white mb-2">3. .deb (Debian/Ubuntu)</h4>
+                            <p class="text-xs text-muted mb-2">L'équivalent du .exe.</p>
+                            <code class="block bg-black p-2 rounded text-xs font-mono text-muted border border-border">sudo apt install ./fichier.deb</code>
+                        </div>
+                        <div class="plate p-6 rounded-xl">
+                            <h4 class="font-bold text-white mb-2">4. .rpm (RedHat)</h4>
+                            <p class="text-xs text-muted mb-2">Nécessite conversion (à éviter).</p>
+                            <div class="space-y-2">
+                                <code class="block bg-black p-2 rounded text-xs font-mono text-muted border border-border">sudo apt install alien</code>
+                                <code class="block bg-black p-2 rounded text-xs font-mono text-muted border border-border">sudo alien -i paquet.rpm</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHROME -->
+                <div id="chrome" class="space-y-4 scroll-mt-28">
+                    <h3 class="text-xl font-bold text-white">Google Chrome & Navigateurs</h3>
+                    
+                    <div class="bg-yellow-900/10 border border-yellow-700/30 p-6 rounded-lg">
+                        <h4 class="font-bold text-yellow-500 mb-2">⚠️ Note importante sur les navigateurs</h4>
+                        <p class="text-sm text-yellow-200/80 leading-relaxed">
+                            Pour le <strong>rendu visuel</strong> (vidéo, fluidité), il est souvent préférable d'utiliser votre navigateur Windows.<br>
+                            Cependant, pour le <strong>développement web</strong> (technique), utilisez le navigateur dans WSL pour éviter les problèmes de réseaux ou de fichiers (ex: CSRF, permissions).
+                        </p>
+                    </div>
+
+                    <div class="plate p-6 rounded-xl space-y-4">
+                        <p class="text-sm text-muted">Installation de Chrome stable dans WSL :</p>
+                        <div class="space-y-2">
+                            <code class="block bg-black p-3 rounded text-xs font-mono text-muted border border-border">wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb</code>
+                            <code class="block bg-black p-3 rounded text-xs font-mono text-muted border border-border">sudo apt install ./google-chrome-stable_current_amd64.deb</code>
+                        </div>
+                        <p class="text-sm text-muted pt-2">Pour lancer Chrome :</p>
+                        <code class="block bg-black p-3 rounded text-xs font-mono text-muted border border-border">google-chrome &</code>
+                    </div>
+                </div>
+
+                <!-- DOCKER -->
+                <div id="docker" class="space-y-4 scroll-mt-28">
+                    <h3 class="text-xl font-bold text-white">🐳 Docker Desktop (WSL Side)</h3>
+                    <div class="plate p-6 rounded-xl space-y-4">
+                        <p class="text-sm text-muted">Si vous utilisez Docker Desktop sur Windows avec l'intégration WSL2 activée :</p>
+                        <div class="space-y-4 text-sm">
+                            <div>
+                                <p class="text-muted text-xs mb-1">1. Vérifier les contextes :</p>
+                                <code class="block bg-black p-2 rounded font-mono text-muted border border-border">docker context ls</code>
+                            </div>
+                            <div>
+                                <p class="text-muted text-xs mb-1">2. Utiliser le contexte par défaut :</p>
+                                <code class="block bg-black p-2 rounded font-mono text-muted border border-border">docker context use default</code>
+                            </div>
+                            <div class="pt-4 border-t border-border mt-4">
+                                <h4 class="text-white font-bold text-xs uppercase mb-3">Lancement automatique</h4>
+                                <p class="text-muted text-xs mb-2">1. Editez votre fichier .bashrc :</p>
+                                <code class="block bg-black p-2 rounded font-mono text-muted border border-border mb-3">nano ~/.bashrc</code>
+                                <p class="text-muted text-xs mb-2">2. Descendez tout en bas (avec la flèche bas) et ajoutez cette ligne :</p>
+                                <code class="block bg-black p-2 rounded font-mono text-white border border-border mb-2">systemctl --user start docker-desktop</code>
+                                <p class="text-[10px] text-muted italic">Sauvegardez avec CTRL+O (Entrée) puis quittez avec CTRL+X.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VS CODE -->
+                <div id="vscode" class="space-y-4 scroll-mt-28">
+                    <h3 class="text-xl font-bold text-white">💻 VS Code + KWallet</h3>
+                    <div class="plate p-6 rounded-xl space-y-4">
+                        <ol class="list-decimal list-inside text-sm text-muted space-y-2 marker:text-white">
+                            <li>Créer un wallet dans <strong>KWalletManager</strong> (déjà installé).</li>
+                            <li>Lancer VS Code avec :
+                                <code class="block mt-2 bg-black p-2 rounded font-mono text-muted border border-border">code --password-store=kwallet5</code>
+                            </li>
+                        </ol>
+                        <div class="pt-4 border-t border-border">
+                            <p class="text-xs text-muted mb-2">Permanent (ajouter dans <code>argv.json</code>) :</p>
+                            <code class="block bg-black p-2 rounded font-mono text-muted border border-border">"password-store": "kwallet5"</code>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- SECTION 4: TROUBLESHOOTING -->
+            <section id="troubleshooting" class="space-y-8 pb-20 scroll-mt-24">
+                <div class="flex items-center gap-4 pb-4 border-b border-border">
+                    <span class="font-mono font-bold text-2xl text-muted">04</span>
+                    <h2 class="text-2xl font-bold text-white">Dépannage</h2>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="plate p-6 rounded-xl">
+                        <h4 class="font-bold text-white mb-2">Écran noir ?</h4>
+                        <p class="text-sm text-muted">Vérifiez que l'IP dans <code>/etc/resolv.conf</code> est bien celle de
+                            votre vEthernet (WSL).</p>
+                    </div>
+                    <div class="plate p-6 rounded-xl">
+                        <h4 class="font-bold text-white mb-2">Distro not found ?</h4>
+                        <p class="text-sm text-muted">Vérifiez le nom exact avec <code>wsl -l -v</code>. "Ubuntu" ≠
+                            "Ubuntu-22.04".</p>
+                    </div>
+                    <div class="plate p-6 rounded-xl">
+                        <h4 class="font-bold text-white mb-2">Flou ?</h4>
+                        <p class="text-sm text-muted">Vous avez oublié le "Fix DPI" dans les propriétés de
+                            <code>vcxsrv.exe</code>.</p>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="border-t border-border py-12 text-center text-xs text-muted font-mono">
+                KDE ON WSL2 GUIDE // <span class="current-year"></span> EDITION // <span id="full-date"></span>
+            </footer>
+
+        </div>
+    </div>
+
+    <!-- SCRIPT -->
     <script>
+        // SIDEBAR & MOBILE MENU LOGIC
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleMenu() {
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Sidebar Active State on Scroll
+        const sections = document.querySelectorAll('section, div[id]');
+        const navLinks = document.querySelectorAll('.sidebar-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // DYNAMIC DATES
+        const now = new Date();
+        document.querySelectorAll('.current-year').forEach(el => {
+            el.textContent = now.getFullYear();
+        });
+        
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const fullDateStr = now.toLocaleDateString('fr-FR', dateOptions);
+        const fullDateEl = document.getElementById('full-date');
+        if(fullDateEl) fullDateEl.textContent = fullDateStr.charAt(0).toUpperCase() + fullDateStr.slice(1);
+
+        // GENERATOR LOGIC
         function generateScripts() {
             const distro = document.getElementById('distro').value.trim();
             const username = document.getElementById('username').value.trim();
@@ -634,32 +736,28 @@ timeout /t 2 /nobreak > nul
 exit
 `;
 
-
-
-            // Injection
             document.getElementById('installArea').value = installBat;
             document.getElementById('startArea').value = startBat;
 
-            // Affichage
-            document.getElementById('results').classList.remove('hidden');
-
-            // Scroll to results
-            document.getElementById('results').scrollIntoView({ behavior: "smooth" });
+            const results = document.getElementById('results');
+            results.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                results.classList.add('animate-fade-in');
+            });
+            results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function copyToClipboard(elementId, btn) {
             const textarea = document.getElementById(elementId);
             textarea.select();
-            textarea.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(textarea.value).then(() => {
-                const originalText = btn.innerText;
-                btn.innerText = "Copié !";
-                btn.style.backgroundColor = "#10b981";
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.backgroundColor = "#334155";
-                }, 2000);
-            });
+            navigator.clipboard.writeText(textarea.value);
+            const originalText = btn.innerText;
+            btn.innerText = "Copié";
+            btn.classList.add('text-white', 'font-bold');
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.classList.remove('text-white', 'font-bold');
+            }, 2000);
         }
     </script>
 </body>
