@@ -245,7 +245,11 @@
 
         <section id="prerequisites">
             <h2>1. Prérequis Indispensables</h2>
-            <p>Avant de générer les scripts, assurez-vous d'avoir suivi ces étapes :</p>
+            <p>Avant de générer les scripts, assurez-vous de respecter ces conditions :</p>
+            <ul>
+                <li>Être <strong>administrateur</strong> de votre PC.</li>
+                <li>Avoir activé la virtualisation dans le BIOS (cela peut potentiellement ne pas marcher si désactivé).</li>
+            </ul>
 
             <h3>A. Installer WSL2</h3>
             <p>Ouvrez <strong>PowerShell en tant qu'administrateur</strong>.</p>
@@ -266,8 +270,8 @@ wsl --install -d NOM_DE_LA_DISTRO</code></pre>
             <h3>B. Installer VcXsrv (Serveur X)</h3>
             <p>Pour afficher l'interface graphique de Linux sur Windows, installez <strong>VcXsrv</strong> :</p>
             <ol>
-                <li>Téléchargez <a href="https://sourceforge.net/projects/vcxsrv/" target="_blank"
-                        style="color: var(--primary);">VcXsrv sur SourceForge</a>.</li>
+                <li>Téléchargez <a href="https://github.com/marchaesen/vcxsrv/releases" target="_blank"
+                        style="color: var(--primary);">VcXsrv sur GitHub</a> (Recommandé) ou SourceForge.</li>
                 <li>Installez-le avec les options par défaut.</li>
             </ol>
 
@@ -332,8 +336,7 @@ wsl --install -d NOM_DE_LA_DISTRO</code></pre>
                         </div>
                         <textarea id="installArea" readonly></textarea>
                     </div>
-                    <p style="font-size: 0.9rem; text-align: center;">👆 Copiez ce code dans un fichier sur votre bureau
-                        et lancez-le pour installer KDE.</p>
+                    <p style="font-size: 0.9rem; text-align: center;">👆 Copiez ce code dans un fichier (ex: <code>install.bat</code>) sur votre bureau et lancez-le avec l'<strong>Invite de commandes (CMD)</strong> (pas PowerShell).</p>
 
                     <div class="code-block-container" style="margin-top: 2rem;">
                         <div class="code-header">
@@ -342,8 +345,7 @@ wsl --install -d NOM_DE_LA_DISTRO</code></pre>
                         </div>
                         <textarea id="startArea" readonly></textarea>
                     </div>
-                    <p style="font-size: 0.9rem; text-align: center;">👆 Utilisez ce fichier pour démarrer KDE à chaque
-                        fois.</p>
+                    <p style="font-size: 0.9rem; text-align: center;">👆 Utilisez ce fichier pour démarrer KDE à chaque fois. (Lancer avec <strong>CMD</strong> également).</p>
                 </div>
             </div>
         </section>
@@ -389,25 +391,47 @@ kquitapp5 plasmashell && kstart5 plasmashell &</code></pre>
 
             <hr>
 
-            <h3>Installer applications sous WSL</h3>
-
-            <h4>APT (Standard)</h4>
-            <pre><code>sudo apt install &lt;package&gt;</code></pre>
-
-            <h4>Snap (Paquets universels)</h4>
-            <pre><code>sudo snap install &lt;package&gt;</code></pre>
-
-            <h4>Fichiers .deb</h4>
-            <pre><code>sudo apt install ./chemin/vers/package.deb</code></pre>
-
-            <h4>Fichiers .rpm (via alien)</h4>
-            <pre><code>sudo apt install alien
-sudo alien -i ./chemin/vers/package.rpm</code></pre>
+            <h3>Initiation à Linux (Pour les débutants)</h3>
+            <p>Si vous débutez sur Linux, voici quelques ressources utiles pour commencer :</p>
+            <ul>
+                <li><a href="https://doc.ubuntu-fr.org/debutant" target="_blank" style="color: var(--primary);">Guide du débutant Ubuntu</a> : Commandes de base, structure des fichiers...</li>
+                <li><a href="https://github.com/phyver/GameShell" target="_blank" style="color: var(--primary);">GameShell</a> : Un jeu pour apprendre le shell Linux en s'amusant.</li>
+            </ul>
 
             <hr>
 
-            <h3>Google Chrome</h3>
-            <p>Téléchargement et installation :</p>
+            <h3>Gestion des paquets et installations</h3>
+            <p>Sous Linux, on n'installe pas des .exe mais des paquets. Voici comment faire :</p>
+
+            <h4>1. Via les dépôts officiels (APT) - Recommandé</h4>
+            <p>La méthode standard pour 99% des logiciels (Firefox, VLC, GIMP...).</p>
+            <pre><code>sudo apt update
+sudo apt install nom_du_paquet</code></pre>
+
+            <h4>2. Via Snap (Universel)</h4>
+            <p>Pour les applications packagées avec toutes leurs dépendances.</p>
+            <pre><code>sudo snap install nom_du_paquet</code></pre>
+
+            <h4>3. Fichiers .deb (Debian/Ubuntu)</h4>
+            <p>Équivalent du .exe pour Debian/Ubuntu. Si vous téléchargez un fichier .deb (ex: Chrome, Discord) :</p>
+            <pre><code>sudo apt install ./chemin/vers/fichier.deb</code></pre>
+
+            <h4>4. Fichiers .rpm (RedHat/Fedora)</h4>
+            <p>Les fichiers .rpm ne sont pas natifs pour Ubuntu. Il faut utiliser <code>alien</code> pour les convertir (à éviter si possible).</p>
+            <pre><code>sudo apt install alien
+sudo alien -i paquet.rpm</code></pre>
+
+            <hr>
+
+            <h3>Google Chrome & Navigateurs</h3>
+            <div style="background-color: rgba(234, 179, 8, 0.1); border: 1px solid #eab308; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                <h4 style="color: #facc15; margin-top: 0;">⚠️ Note importante sur les navigateurs</h4>
+                <p style="margin-bottom: 0;">
+                    Pour le <strong>rendu visuel</strong> (vidéo, fluidité), il est souvent préférable d'utiliser votre navigateur Windows.
+                    Cependant, pour le <strong>développement web</strong> (technique), utilisez le navigateur dans WSL pour éviter les problèmes de réseaux ou de fichiers (ex: CSRF, permissions).
+                </p>
+            </div>
+            <p>Installation de Chrome dans WSL :</p>
             <pre><code>wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo apt install ./google-chrome-stable_current_amd64.deb</code></pre>
             <p>Lancer :</p>
@@ -416,11 +440,14 @@ sudo apt install ./google-chrome-stable_current_amd64.deb</code></pre>
             <hr>
 
             <h3>🐳 Docker Desktop (WSL Side)</h3>
-            <p>Lancer le service automatiquement :</p>
+            <p>Si vous utilisez Docker Desktop sur Windows avec l'intégration WSL2 activée :</p>
+            <p>1. Vérifier les contextes disponibles :</p>
+            <pre><code>docker context ls</code></pre>
+            <p>2. Utiliser le contexte par défaut (celui de Desktop) :</p>
+            <pre><code>docker context use default</code></pre>
+            <p>3. Lancer le service (si nécessaire) :</p>
             <pre><code>systemctl --user start docker-desktop</code></pre>
-
-            <p>Lancer l’UI Docker Desktop (optionnel) :</p>
-            <pre><code>/opt/docker-desktop/Docker\ Desktop &</code></pre>
+            <p><em>(Optionnel : Ajoutez cette commande à la fin de votre fichier <code>~/.bashrc</code> pour qu'il se lance automatiquement).</em></p>
 
             <hr>
 
@@ -493,7 +520,7 @@ echo ===========================================================================
 echo  INSTRUCTIONS IMPORTANTES POUR TASKSEL :
 echo ===============================================================================
 echo  1. Une interface bleue va s'ouvrir.
-echo  2. Descendez jusqu'a "Kubuntu Desktop" ou "KDE Plasma" avec les FLECHES.
+echo  2. Descendez jusqu'a "KDE Plasma" avec les FLECHES.
 echo  3. Cochez la case avec la BARRE ESPACE [*].
 echo  4. Validez avec TAB puis ENTREE.
 echo ===============================================================================
@@ -503,23 +530,27 @@ pause >nul
 wsl -d %WSL_DISTRO% -u root tasksel
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
-REM 4. Configuration WSL
-echo [4/7] Configuration de /etc/wsl.conf...
+REM 4. Configuration Profile (.profile)
+echo [4/8] Configuration de .profile pour charger .bashrc...
+wsl -d %WSL_DISTRO% -u %WSL_USER% -e bash -c "if ! grep -q '. ~/.bashrc' ~/.profile; then echo 'if [ -f ~/.bashrc ]; then . ~/.bashrc; fi' >> ~/.profile; fi"
+
+REM 5. Configuration WSL
+echo [5/8] Configuration de /etc/wsl.conf...
 wsl -d %WSL_DISTRO% -u root -e bash -c "if ! grep -q 'generateResolvConf = false' /etc/wsl.conf; then echo '[network]' >> /etc/wsl.conf && echo 'generateResolvConf = false' >> /etc/wsl.conf; fi"
 
-REM 5. Configuration DNS
-echo [5/7] Configuration de /etc/resolv.conf (IP: %WSL_IP%)...
+REM 6. Configuration DNS
+echo [6/8] Configuration de /etc/resolv.conf (IP: %WSL_IP%)...
 wsl -d %WSL_DISTRO% -u root -e bash -c "rm -f /etc/resolv.conf && echo 'nameserver %WSL_IP%' > /etc/resolv.conf && echo 'nameserver 8.8.8.8' >> /etc/resolv.conf"
 
-REM 6. Configuration Environnement (.bashrc)
-echo [6/7] Configuration de .bashrc pour %WSL_USER%...
+REM 7. Configuration Environnement (.bashrc)
+echo [7/8] Configuration de .bashrc pour %WSL_USER%...
 wsl -d %WSL_DISTRO% -u %WSL_USER% -e bash -c "sed -i '/# ===== WSL + VcXsrv KDE =====/,/export QT_AUTO_SCREEN_SCALE_FACTOR=0/d' ~/.bashrc && echo '' >> ~/.bashrc && echo '# ===== WSL + VcXsrv KDE =====' >> ~/.bashrc && echo 'export DISPLAY=%WSL_IP%:0' >> ~/.bashrc && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/.bashrc && echo 'export QT_QPA_PLATFORM=xcb' >> ~/.bashrc && echo 'export XDG_SESSION_TYPE=x11' >> ~/.bashrc && echo 'export KDE_FULL_SESSION=true' >> ~/.bashrc && echo 'export KWIN_COMPOSE=N' >> ~/.bashrc && echo 'export GDK_DPI_SCALE=1' >> ~/.bashrc && echo 'export QT_SCALE_FACTOR=1' >> ~/.bashrc && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/.bashrc"
 
-REM 7. Script de lancement interne
-echo [7/7] Creation du script de lancement interne (~/bin/start-kde.sh)...
+REM 8. Script de lancement interne
+echo [8/8] Creation du script de lancement interne (~/bin/start-kde.sh)...
 wsl -d %WSL_DISTRO% -u %WSL_USER% -e bash -c "mkdir -p ~/bin && echo '#!/bin/bash' > ~/bin/start-kde.sh && echo 'export DISPLAY=%WSL_IP%:0' >> ~/bin/start-kde.sh && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/bin/start-kde.sh && echo 'export QT_QPA_PLATFORM=xcb' >> ~/bin/start-kde.sh && echo 'export XDG_SESSION_TYPE=x11' >> ~/bin/start-kde.sh && echo 'export KDE_FULL_SESSION=true' >> ~/bin/start-kde.sh && echo 'export KWIN_COMPOSE=N' >> ~/bin/start-kde.sh && echo 'export GDK_DPI_SCALE=1' >> ~/bin/start-kde.sh && echo 'export QT_SCALE_FACTOR=1' >> ~/bin/start-kde.sh && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/bin/start-kde.sh && echo 'dbus-launch --exit-with-session startplasma-x11' >> ~/bin/start-kde.sh && chmod +x ~/bin/start-kde.sh"
 
-REM 8. Redémarrage
+REM 9. Redémarrage
 echo.
 echo [INFO] Redemarrage de WSL...
 wsl --shutdown
