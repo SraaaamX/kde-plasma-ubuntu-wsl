@@ -448,23 +448,20 @@
                 <div id="docker" class="space-y-4 scroll-mt-28">
                     <h3 class="text-xl font-bold text-white">🐳 Docker Desktop (WSL Side)</h3>
                     <div class="plate p-6 rounded-xl space-y-4">
-                        <p class="text-sm text-muted">Si vous utilisez Docker Desktop sur Windows avec l'intégration WSL2 activée :</p>
+                        <p class="text-sm text-muted">L'intégration Docker Desktop est gérée automatiquement pour WSL.</p>
                         <div class="space-y-4 text-sm">
-                            <div>
-                                <p class="text-muted text-xs mb-1">1. Vérifier les contextes :</p>
-                                <code class="block bg-black p-2 rounded font-mono text-muted border border-border">docker context ls</code>
-                            </div>
-                            <div>
-                                <p class="text-muted text-xs mb-1">2. Utiliser le contexte par défaut :</p>
-                                <code class="block bg-black p-2 rounded font-mono text-muted border border-border">docker context use default</code>
-                            </div>
+                            <p class="text-muted text-xs italic">Le contexte Docker (default) et le service sont configurés automatiquement par le script d'installation.</p>
+
                             <div class="pt-4 border-t border-border mt-4">
-                                <h4 class="text-white font-bold text-xs uppercase mb-3">Lancement automatique</h4>
-                                <p class="text-muted text-xs mb-2">1. Editez votre fichier .bashrc :</p>
-                                <code class="block bg-black p-2 rounded font-mono text-muted border border-border mb-3">nano ~/.bashrc</code>
-                                <p class="text-muted text-xs mb-2">2. Descendez tout en bas (avec la flèche bas) et ajoutez cette ligne :</p>
-                                <code class="block bg-black p-2 rounded font-mono text-white border border-border mb-2">systemctl --user start docker-desktop</code>
-                                <p class="text-[10px] text-muted italic">Sauvegardez avec CTRL+O (Entrée) puis quittez avec CTRL+X.</p>
+                                <h4 class="text-white font-bold text-xs uppercase mb-3">Lancement & Interface</h4>
+                                <p class="text-muted text-xs mb-2">Le démarrage automatique est inclus dans le script d'installation.</p>
+                                <div class="bg-yellow-900/20 border border-yellow-700/30 p-3 rounded mb-3">
+                                    <p class="text-xs text-yellow-200/80">
+                                        ⚠️ Généralement, Docker Desktop ne peut pas être lancé via l'interface graphique.
+                                    </p>
+                                </div>
+                                <p class="text-muted text-xs mb-2">Pour lancer l'interface, utilisez cette commande :</p>
+                                <code class="block bg-black p-2 rounded font-mono text-white border border-border mb-2">/opt/docker-desktop/Docker\ Desktop</code>
                             </div>
                         </div>
                     </div>
@@ -646,7 +643,7 @@ wsl -d %WSL_DISTRO% -u root -e bash -c "rm -f /etc/resolv.conf && echo 'nameserv
 
 REM 7. Configuration Environnement (.bashrc)
 echo [7/8] Configuration de .bashrc pour %WSL_USER%...
-wsl -d %WSL_DISTRO% -u %WSL_USER% -e bash -c "sed -i '/# ===== WSL + VcXsrv KDE =====/,/export QT_AUTO_SCREEN_SCALE_FACTOR=0/d' ~/.bashrc && echo '' >> ~/.bashrc && echo '# ===== WSL + VcXsrv KDE =====' >> ~/.bashrc && echo 'export DISPLAY=%WSL_IP%:0' >> ~/.bashrc && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/.bashrc && echo 'export QT_QPA_PLATFORM=xcb' >> ~/.bashrc && echo 'export XDG_SESSION_TYPE=x11' >> ~/.bashrc && echo 'export KDE_FULL_SESSION=true' >> ~/.bashrc && echo 'export KWIN_COMPOSE=N' >> ~/.bashrc && echo 'export GDK_DPI_SCALE=1' >> ~/.bashrc && echo 'export QT_SCALE_FACTOR=1' >> ~/.bashrc && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/.bashrc"
+wsl -d %WSL_DISTRO% -u %WSL_USER% -e bash -c "sed -i '/# ===== WSL + VcXsrv KDE =====/,/export QT_AUTO_SCREEN_SCALE_FACTOR=0/d' ~/.bashrc && echo '' >> ~/.bashrc && echo '# ===== WSL + VcXsrv KDE =====' >> ~/.bashrc && echo 'export DISPLAY=%WSL_IP%:0' >> ~/.bashrc && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/.bashrc && echo 'export QT_QPA_PLATFORM=xcb' >> ~/.bashrc && echo 'export XDG_SESSION_TYPE=x11' >> ~/.bashrc && echo 'export KDE_FULL_SESSION=true' >> ~/.bashrc && echo 'export KWIN_COMPOSE=N' >> ~/.bashrc && echo 'export GDK_DPI_SCALE=1' >> ~/.bashrc && echo 'export QT_SCALE_FACTOR=1' >> ~/.bashrc && echo 'systemctl --user start docker-desktop' >> ~/.bashrc && echo 'docker context use default' >> ~/.bashrc && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/.bashrc"
 
 REM 8. Script de lancement interne
 echo [8/8] Creation du script de lancement interne (~/bin/start-kde.sh)...
