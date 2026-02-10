@@ -463,6 +463,20 @@
                                 <p class="text-muted text-xs mb-2">Pour lancer l'interface, utilisez cette commande :</p>
                                 <code class="block bg-black p-2 rounded font-mono text-white border border-border mb-2">/opt/docker-desktop/Docker\ Desktop</code>
                             </div>
+
+                            <div class="pt-4 border-t border-border mt-4">
+                                <h4 class="text-white font-bold text-xs uppercase mb-3">Utiliser Docker sans sudo</h4>
+                                <div class="bg-green-900/20 border border-green-700/30 p-3 rounded mb-3">
+                                    <p class="text-xs text-green-200/80 mb-2">
+                                        ✅ Les permissions Docker sont configurées automatiquement lors de l'installation.
+                                    </p>
+                                    <p class="text-xs text-green-200/80">
+                                        <strong>Important :</strong> Après avoir installé Docker Desktop, redémarrez simplement KDE pour que les droits prennent effet.
+                                    </p>
+                                </div>
+                                <p class="text-muted text-xs mb-2">Après le redémarrage de KDE, vous pourrez utiliser Docker sans sudo :</p>
+                                <code class="block bg-black p-2 rounded font-mono text-white border border-border">docker ps</code>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -603,17 +617,17 @@ echo Ce script va executer les commandes necessaires dans WSL.
 echo.
 
 REM 1. Mise à jour du système
-echo [1/7] Mise a jour des depots et du systeme...
+echo [1/9] Mise a jour des depots et du systeme...
 wsl -d %WSL_DISTRO% -u root -e bash -c "apt update && apt upgrade -y"
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 REM 2. Installation des outils requis
-echo [2/7] Installation de Tasksel et utilitaires X11...
+echo [2/9] Installation de Tasksel et utilitaires X11...
 wsl -d %WSL_DISTRO% -u root -e bash -c "apt install -y tasksel dbus-x11 x11-xserver-utils"
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 REM 3. Installation de KDE Plasma via Tasksel
-echo [3/7] Lancement de Tasksel pour l'installation manuelle...
+echo [3/9] Lancement de Tasksel pour l'installation manuelle...
 echo.
 echo ===============================================================================
 echo  INSTRUCTIONS IMPORTANTES POUR TASKSEL :
@@ -630,34 +644,37 @@ wsl -d %WSL_DISTRO% -u root tasksel
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 REM 4. Configuration Profile (.profile)
-echo [4/8] Configuration de .profile pour charger .bashrc...
+echo [4/9] Configuration de .profile pour charger .bashrc...
 wsl -d %WSL_DISTRO% -u %WSL_USER% -e bash -c "if ! grep -q '. ~/.bashrc' ~/.profile; then echo 'if [ -f ~/.bashrc ]; then . ~/.bashrc; fi' >> ~/.profile; fi"
 
-REM 5. Configuration WSL
-echo [5/8] Configuration de /etc/wsl.conf...
+REM 5. Configuration WSL (generateResolvConf = false)
+echo [5/9] Configuration de /etc/wsl.conf...
 wsl -d %WSL_DISTRO% -u root -e bash -c "if ! grep -q 'generateResolvConf = false' /etc/wsl.conf; then echo '[network]' >> /etc/wsl.conf && echo 'generateResolvConf = false' >> /etc/wsl.conf; fi"
 
-REM 6. Configuration DNS (Suppression et recreation avec IP utilisateur)
-echo [6/8] Suppression de /etc/resolv.conf...
+REM 6. Redémarrage WSL pour activer wsl.conf
+echo.
+echo [6/9] Redemarrage de WSL pour activer wsl.conf...
+wsl --shutdown
+timeout /t 3 /nobreak > nul
+
+REM 7. Configuration DNS (APRES redemarrage, wsl.conf est actif maintenant)
+echo [7/9] Creation de /etc/resolv.conf avec IP fixe %WSL_IP%...
 wsl -d %WSL_DISTRO% -u root -e bash -c "rm -f /etc/resolv.conf"
-echo [6/8] Creation de /etc/resolv.conf avec nameserver %WSL_IP% et 8.8.8.8...
 wsl -d %WSL_DISTRO% -u root -e bash -c "echo 'nameserver %WSL_IP%' > /etc/resolv.conf"
 wsl -d %WSL_DISTRO% -u root -e bash -c "echo 'nameserver 8.8.8.8' >> /etc/resolv.conf"
-echo [6/8] Verification du contenu de /etc/resolv.conf :
+echo [7/9] Verification :
 wsl -d %WSL_DISTRO% -u root -e cat /etc/resolv.conf
 
-REM 7. Configuration Environnement (.bashrc)
-echo [7/8] Configuration de .bashrc pour %WSL_USER%...
-wsl -d %WSL_DISTRO% -u %WSL_USER% -e bash -c "sed -i '/# ===== WSL + VcXsrv KDE =====/,/export QT_AUTO_SCREEN_SCALE_FACTOR=0/d' ~/.bashrc && echo '' >> ~/.bashrc && echo '# ===== WSL + VcXsrv KDE =====' >> ~/.bashrc && echo 'export DISPLAY=\$(grep nameserver /etc/resolv.conf | awk '\''{print \$2}'\''):0' >> ~/.bashrc && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/.bashrc && echo 'export QT_QPA_PLATFORM=xcb' >> ~/.bashrc && echo 'export XDG_SESSION_TYPE=x11' >> ~/.bashrc && echo 'export KDE_FULL_SESSION=true' >> ~/.bashrc && echo 'export KWIN_COMPOSE=N' >> ~/.bashrc && echo 'export GDK_DPI_SCALE=1' >> ~/.bashrc && echo 'export QT_SCALE_FACTOR=1' >> ~/.bashrc && echo 'systemctl --user start docker-desktop' >> ~/.bashrc && echo 'docker context use default' >> ~/.bashrc && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/.bashrc"
 
-REM 8. Script de lancement interne
-echo [8/8] Creation du script de lancement interne (~/bin/start-kde.sh)...
-wsl -d %WSL_DISTRO% -u %WSL_USER% -e bash -c "mkdir -p ~/bin && echo '#!/bin/bash' > ~/bin/start-kde.sh && echo 'export DISPLAY=\$(grep nameserver /etc/resolv.conf | awk '\''{print \$2}'\''):0' >> ~/bin/start-kde.sh && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/bin/start-kde.sh && echo 'export QT_QPA_PLATFORM=xcb' >> ~/bin/start-kde.sh && echo 'export XDG_SESSION_TYPE=x11' >> ~/bin/start-kde.sh && echo 'export KDE_FULL_SESSION=true' >> ~/bin/start-kde.sh && echo 'export KWIN_COMPOSE=N' >> ~/bin/start-kde.sh && echo 'export GDK_DPI_SCALE=1' >> ~/bin/start-kde.sh && echo 'export QT_SCALE_FACTOR=1' >> ~/bin/start-kde.sh && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/bin/start-kde.sh && echo 'dbus-launch --exit-with-session startplasma-x11' >> ~/bin/start-kde.sh && chmod +x ~/bin/start-kde.sh"
+REM 8. Configuration Environnement (.bashrc)
+echo [8/9] Configuration de .bashrc pour %WSL_USER%...
+wsl -d %WSL_DISTRO% -u %WSL_USER% -e bash -c "sed -i '/# ===== WSL + VcXsrv KDE =====/,/export QT_AUTO_SCREEN_SCALE_FACTOR=0/d' ~/.bashrc && echo '' >> ~/.bashrc && echo '# ===== WSL + VcXsrv KDE =====' >> ~/.bashrc && echo 'export DISPLAY=%WSL_IP%:0' >> ~/.bashrc && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/.bashrc && echo 'export QT_QPA_PLATFORM=xcb' >> ~/.bashrc && echo 'export XDG_SESSION_TYPE=x11' >> ~/.bashrc && echo 'export KDE_FULL_SESSION=true' >> ~/.bashrc && echo 'export KWIN_COMPOSE=N' >> ~/.bashrc && echo 'export GDK_DPI_SCALE=1' >> ~/.bashrc && echo 'export QT_SCALE_FACTOR=1' >> ~/.bashrc && echo 'systemctl --user start docker-desktop' >> ~/.bashrc && echo 'docker context use default' >> ~/.bashrc && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/.bashrc"
 
-REM 9. Redémarrage
-echo.
-echo [INFO] Redemarrage de WSL...
-wsl --shutdown
+REM 9. Script de lancement interne
+echo [9/9] Creation du script de lancement interne (~/bin/start-kde.sh)...
+wsl -d %WSL_DISTRO% -u %WSL_USER% -e bash -c "mkdir -p ~/bin && echo '#!/bin/bash' > ~/bin/start-kde.sh && echo 'export DISPLAY=%WSL_IP%:0' >> ~/bin/start-kde.sh && echo 'export LIBGL_ALWAYS_SOFTWARE=1' >> ~/bin/start-kde.sh && echo 'export QT_QPA_PLATFORM=xcb' >> ~/bin/start-kde.sh && echo 'export XDG_SESSION_TYPE=x11' >> ~/bin/start-kde.sh && echo 'export KDE_FULL_SESSION=true' >> ~/bin/start-kde.sh && echo 'export KWIN_COMPOSE=N' >> ~/bin/start-kde.sh && echo 'export GDK_DPI_SCALE=1' >> ~/bin/start-kde.sh && echo 'export QT_SCALE_FACTOR=1' >> ~/bin/start-kde.sh && echo 'export QT_AUTO_SCREEN_SCALE_FACTOR=0' >> ~/bin/start-kde.sh && echo 'dbus-launch --exit-with-session startplasma-x11' >> ~/bin/start-kde.sh && chmod +x ~/bin/start-kde.sh"
+
+
 
 echo.
 echo =======================================================
@@ -735,7 +752,6 @@ wsl --terminate %WSL_DISTRO% 2>NUL
 taskkill /F /IM vcxsrv.exe >NUL 2>&1
 del "%TEMP%\\vcxsrv_kde.xlaunch" >NUL 2>&1
 timeout /t 2 /nobreak > nul
-exit
 `;
 
             document.getElementById('installArea').value = installBat;
