@@ -637,9 +637,14 @@ REM 5. Configuration WSL
 echo [5/8] Configuration de /etc/wsl.conf...
 wsl -d %WSL_DISTRO% -u root -e bash -c "if ! grep -q 'generateResolvConf = false' /etc/wsl.conf; then echo '[network]' >> /etc/wsl.conf && echo 'generateResolvConf = false' >> /etc/wsl.conf; fi"
 
-REM 6. Configuration DNS
-echo [6/8] Configuration de /etc/resolv.conf (IP: %WSL_IP%)...
-wsl -d %WSL_DISTRO% -u root -e bash -c "rm -f /etc/resolv.conf && echo 'nameserver %WSL_IP%' > /etc/resolv.conf && echo 'nameserver 8.8.8.8' >> /etc/resolv.conf"
+REM 6. Configuration DNS (Suppression et recreation avec IP utilisateur)
+echo [6/8] Suppression de /etc/resolv.conf...
+wsl -d %WSL_DISTRO% -u root -e bash -c "rm -f /etc/resolv.conf"
+echo [6/8] Creation de /etc/resolv.conf avec nameserver %WSL_IP% et 8.8.8.8...
+wsl -d %WSL_DISTRO% -u root -e bash -c "echo 'nameserver %WSL_IP%' > /etc/resolv.conf"
+wsl -d %WSL_DISTRO% -u root -e bash -c "echo 'nameserver 8.8.8.8' >> /etc/resolv.conf"
+echo [6/8] Verification du contenu de /etc/resolv.conf :
+wsl -d %WSL_DISTRO% -u root -e cat /etc/resolv.conf
 
 REM 7. Configuration Environnement (.bashrc)
 echo [7/8] Configuration de .bashrc pour %WSL_USER%...
