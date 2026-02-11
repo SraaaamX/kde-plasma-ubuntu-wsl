@@ -867,9 +867,6 @@ start "" "C:\\Program Files\\VcXsrv\\xlaunch.exe" -run "%TEMP%\\vcxsrv_kde.xlaun
 echo [3/5] Attente (5s)...
 timeout /t 5 /nobreak > nul
 
-REM 3b. Monitor VcXsrv (Relance auto si fermé)
-echo [Info] Surveillance VcXsrv active.
-start /B "VcXsrv Monitor" cmd /c "FOR /L %%N IN () DO (tasklist /FI \\"IMAGENAME eq vcxsrv.exe\\" 2>NUL | find /I /N \\"vcxsrv.exe\\">NUL || (echo [MONITOR] VcXsrv fermé. Relance... && start \\"\\" \\"C:\\\\Program Files\\\\VcXsrv\\\\xlaunch.exe\\" -run \\"%TEMP%\\\\vcxsrv_kde.xlaunch\\") & timeout /t 2 /nobreak >nul)"
 
 REM 4. Lancer KDE
 echo [4/5] Lancement de KDE dans %WSL_DISTRO%...
