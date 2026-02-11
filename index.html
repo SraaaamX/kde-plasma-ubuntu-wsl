@@ -442,6 +442,130 @@
                         <p class="text-sm text-muted pt-2">Pour lancer Chrome :</p>
                         <code class="block bg-black p-3 rounded text-xs font-mono text-muted border border-border">google-chrome &</code>
                     </div>
+
+                    <!-- CHROME FAST DEV -->
+                    <div class="plate p-6 rounded-xl space-y-4 border-l-4 border-blue-500">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-xl">🚀</span>
+                            <h4 class="font-bold text-white">Chrome Fast Dev (Ultra Optimisé)</h4>
+                        </div>
+                        <p class="text-sm text-muted">Version ultra-légère et optimisée pour le <strong>développement uniquement</strong>. Désactive les services inutiles, le cache agressif, et optimise la RAM.</p>
+                        
+                        <div class="bg-surface2 p-4 rounded border border-border space-y-2">
+                            <p class="text-xs text-muted font-bold uppercase">Installation (Copier-coller tout le bloc) :</p>
+                            <div class="relative group">
+                                <pre class="well p-4 rounded-lg overflow-x-auto text-[10px] text-muted font-mono leading-relaxed whitespace-pre-wrap h-64">sudo tee /usr/local/bin/chrome-fast > /dev/null << 'WRAPPER'
+#!/bin/bash
+exec /usr/bin/google-chrome-stable \
+  --disable-background-apps \
+  --disable-background-networking \
+  --disable-background-timer-throttling \
+  --disable-backgrounding-occluded-windows \
+  --disable-breakpad \
+  --disable-client-side-phishing-detection \
+  --disable-component-extensions-with-background-pages \
+  --disable-component-update \
+  --disable-crash-reporter \
+  --disable-default-apps \
+  --disable-dev-shm-usage \
+  --disable-extensions-http-throttling \
+  --disable-hang-monitor \
+  --disable-logging \
+  --disable-renderer-backgrounding \
+  --disable-sync \
+  --disable-translate \
+  --disable-features=TranslateUI,OptimizationHints,MediaRouter,DialMediaRouteProvider,AutofillServerCommunication,CrashReporting,ChromeWhatsNewUI,TabHoverCardImages,ReadingList,LensRegionSearch,InterestFeedContentSuggestions,Translate \
+  --enable-features=ParallelDownloading,TurnOffStreamingMediaCachingAlways \
+  --enable-parallel-downloading \
+  --force-color-profile=srgb \
+  --js-flags="--max-old-space-size=512 --optimize-for-size --gc-interval=100" \
+  --max-tiles-for-interest-area=64 \
+  --memory-model=low \
+  --no-crash-upload \
+  --no-default-browser-check \
+  --no-first-run \
+  --no-pings \
+  --no-service-autorun \
+  --num-raster-threads=2 \
+  --process-per-site \
+  --renderer-process-limit=4 \
+  --disk-cache-size=52428800 \
+  --media-cache-size=52428800 \
+  --aggressive-cache-discard \
+  "$@"
+WRAPPER
+sudo chmod +x /usr/local/bin/chrome-fast && \
+mkdir -p ~/.local/share/applications && \
+cat > ~/.local/share/applications/chrome-fast.desktop << 'EOF'
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Chrome Fast
+GenericName=Navigateur Web
+Comment=Google Chrome ultra-optimisé
+Exec=/usr/local/bin/chrome-fast --new-window --class=ChromeFast --user-data-dir=/tmp/chrome-fast-profile about:newtab
+Icon=google-chrome
+Terminal=false
+Categories=Network;WebBrowser;
+StartupNotify=true
+StartupWMClass=ChromeFast
+EOF
+BUREAU=$(xdg-user-dir DESKTOP) && \
+cat > "$BUREAU/ChromeFast.desktop" << 'EOF'
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Chrome Fast
+GenericName=Navigateur Web
+Comment=Google Chrome ultra-optimisé
+Exec=/usr/local/bin/chrome-fast --new-window --class=ChromeFast --user-data-dir=/tmp/chrome-fast-profile about:newtab
+Icon=google-chrome
+Terminal=false
+Categories=Network;WebBrowser;
+StartupNotify=true
+StartupWMClass=ChromeFast
+EOF
+chmod +x "$BUREAU/ChromeFast.desktop" && \
+gio set "$BUREAU/ChromeFast.desktop" metadata::trusted true 2>/dev/null && \
+mkdir -p /tmp/chrome-fast-profile && \
+CHROME_DIR="$HOME/.config/google-chrome/Default" && \
+rm -rf "$CHROME_DIR/Cache"/* \
+       "$CHROME_DIR/Code Cache"/* \
+       "$CHROME_DIR/GPUCache"/* \
+       "$CHROME_DIR/ShaderCache"/* \
+       "$CHROME_DIR/DawnCache"/* \
+       "$CHROME_DIR/Service Worker/CacheStorage"/* \
+       "$CHROME_DIR/Service Worker/ScriptCache"/* \
+       "$HOME/.config/google-chrome/ShaderCache"/* \
+       "$HOME/.config/google-chrome/GrShaderCache"/* && \
+systemctl --user stop google-chrome.service 2>/dev/null ; \
+systemctl --user disable google-chrome.service 2>/dev/null ; \
+systemctl --user stop chrome-remote-desktop@$USER.service 2>/dev/null ; \
+systemctl --user disable chrome-remote-desktop@$USER.service 2>/dev/null ; \
+rm -f ~/.config/autostart/google-chrome.desktop 2>/dev/null && \
+PREFS="$CHROME_DIR/Preferences" && \
+if [ -f "$PREFS" ]; then \
+  python3 -c "
+import json
+with open('$PREFS', 'r') as f:
+    p = json.load(f)
+p.setdefault('background_mode', {})['enabled'] = False
+p.setdefault('net', {})['network_prediction_options'] = 2
+p.setdefault('dns_prefetching', {})['enabled'] = False
+p.setdefault('browser', {})['check_default_browser'] = False
+p.setdefault('spellcheck', {})['use_spelling_service'] = False
+with open('$PREFS', 'w') as f:
+    json.dump(p, f, indent=2)
+" 2>/dev/null ; \
+fi && \
+update-desktop-database ~/.local/share/applications/ 2>/dev/null && \
+kbuildsycoca5 --noincremental 2>/dev/null && \
+echo "✅ Chrome Fast installé. Raccourci bureau créé."</pre>
+                                <button onclick="navigator.clipboard.writeText(this.previousElementSibling.innerText); this.innerText='Copié!'" class="absolute top-2 right-2 bg-white text-black text-xs font-bold px-3 py-1 rounded shadow hover:bg-gray-200 transition-colors">Copier</button>
+                            </div>
+                        </div>
+                        <p class="text-xs text-muted italic">💡 <strong>Astuce :</strong> Lancez-le depuis le bureau KDE, puis faites clic-droit dans la barre des tâches → "Épingler" pour l'avoir toujours sous la main.</p>
+                    </div>
                 </div>
 
                 <!-- DOCKER -->
@@ -523,6 +647,17 @@
                         <p class="text-sm text-muted">Vous avez oublié le "Fix DPI" dans les propriétés de
                             <code>vcxsrv.exe</code>.</p>
                     </div>
+                </div>
+
+                <!-- ARRET DE KDE -->
+                <div class="plate p-6 rounded-xl border-l-4 border-red-500 mt-8">
+                    <h4 class="font-bold text-white mb-3 flex items-center gap-2">
+                        <span class="text-red-500">🛑</span>
+                        Comment arrêter KDE proprement
+                    </h4>
+                    <p class="text-sm text-muted leading-relaxed">
+                        Pour quitter votre session KDE et arrêter le serveur X proprement, retournez dans la <strong>fenêtre du terminal Windows</strong> où vous avez lancé le fichier <code class="bg-black px-2 py-0.5 rounded">start_kde.bat</code> et faites <kbd class="bg-white text-black px-2 py-1 rounded font-bold text-xs">Ctrl + C</kbd>. Cela fermera KDE, VcXsrv et toutes les ressources associées.
+                    </p>
                 </div>
             </section>
 
@@ -732,12 +867,16 @@ start "" "C:\\Program Files\\VcXsrv\\xlaunch.exe" -run "%TEMP%\\vcxsrv_kde.xlaun
 echo [3/5] Attente (5s)...
 timeout /t 5 /nobreak > nul
 
+REM 3b. Monitor VcXsrv (Relance auto si fermé)
+echo [Info] Surveillance VcXsrv active.
+start /B "VcXsrv Monitor" cmd /c "FOR /L %%N IN () DO (tasklist /FI \\"IMAGENAME eq vcxsrv.exe\\" 2>NUL | find /I /N \\"vcxsrv.exe\\">NUL || (echo [MONITOR] VcXsrv fermé. Relance... && start \\"\\" \\"C:\\\\Program Files\\\\VcXsrv\\\\xlaunch.exe\\" -run \\"%TEMP%\\\\vcxsrv_kde.xlaunch\\") & timeout /t 2 /nobreak >nul)"
+
 REM 4. Lancer KDE
 echo [4/5] Lancement de KDE dans %WSL_DISTRO%...
 echo.
 echo ===================================================
 echo  KDE va demarrer. Laissez cette fenetre ouverte.
-echo  Appuyez sur CTRL+C pour fermer.
+echo  POUR ARRETER KDE : Faites CTRL + C ici.
 echo ===================================================
 
 REM Commande d'optimisation
